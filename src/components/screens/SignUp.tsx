@@ -1,12 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
 import type { ScreenId, Role } from '../../types';
 import { KatmaiLogo } from '../KatmaiLogo';
+import { supabase } from '../../lib/supabase';
 
 interface Props {
   isActive: boolean;
   role: Role;
   onNavigate: (s: ScreenId) => void;
   onRoleChange: (r: Role) => void;
+  onPendingEmail: (email: string) => void;
 }
 
 function BrandWave() {
@@ -43,12 +45,35 @@ function BrandWave() {
   );
 }
 
-export function SignUp({ isActive, role, onNavigate, onRoleChange }: Props) {
+export function SignUp({ isActive, role, onNavigate, onRoleChange, onPendingEmail }: Props) {
   const [selRole, setSelRole] = useState<Role>(role);
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName]   = useState('');
+  const [email, setEmail]         = useState('');
+  const [password, setPassword]   = useState('');
+  const [error, setError]         = useState('');
+  const [loading, setLoading]     = useState(false);
 
   const handleRole = (r: Role) => {
     setSelRole(r);
     onRoleChange(r);
+  };
+
+  const handleSubmit = async () => {
+    setError('');
+    if (!email || !password) { setError('Email and password are required.'); return; }
+    setLoading(true);
+    const { error: err } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { first_name: firstName, last_name: lastName, role: selRole },
+      },
+    });
+    setLoading(false);
+    if (err) { setError(err.message); return; }
+    onPendingEmail(email);
+    onNavigate('verify');
   };
 
   return (
@@ -87,6 +112,8 @@ export function SignUp({ isActive, role, onNavigate, onRoleChange }: Props) {
                 <p>Start with a simulator instantly. Book hardware once you're verified.</p>
               </div>
 
+              {error && <div className="form-error">{error}</div>}
+
               <button className="btn btn-ghost btn-block" onClick={() => onNavigate('verify')}>
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M4 6h16M4 6l8 7 8-7M4 6v12h16V6" /></svg>
                 Continue with University SSO
@@ -94,11 +121,11 @@ export function SignUp({ isActive, role, onNavigate, onRoleChange }: Props) {
               <div className="divline">or with email</div>
 
               <div className="row2">
-                <div className="field"><label>First name</label><input className="input" placeholder="Ada" /></div>
-                <div className="field"><label>Last name</label><input className="input" placeholder="Lovelace" /></div>
+                <div className="field"><label>First name</label><input className="input" placeholder="Ada" value={firstName} onChange={e => setFirstName(e.target.value)} /></div>
+                <div className="field"><label>Last name</label><input className="input" placeholder="Lovelace" value={lastName} onChange={e => setLastName(e.target.value)} /></div>
               </div>
-              <div className="field"><label>Email</label><input className="input" type="email" placeholder="you@university.edu" /></div>
-              <div className="field"><label>Password</label><input className="input" type="password" placeholder="••••••••••" /></div>
+              <div className="field"><label>Email</label><input className="input" type="email" placeholder="you@university.edu" value={email} onChange={e => setEmail(e.target.value)} /></div>
+              <div className="field"><label>Password</label><input className="input" type="password" placeholder="••••••••••" value={password} onChange={e => setPassword(e.target.value)} /></div>
 
               <div className="field">
                 <label>I am a…</label>
@@ -116,8 +143,8 @@ export function SignUp({ isActive, role, onNavigate, onRoleChange }: Props) {
                 </div>
               </div>
 
-              <button className="btn btn-primary btn-block mt8" onClick={() => onNavigate('verify')}>
-                Create account <span className="arr">→</span>
+              <button className="btn btn-primary btn-block mt8" onClick={handleSubmit} disabled={loading}>
+                {loading ? 'Creating account…' : <span>Create account <span className="arr">→</span></span>}
               </button>
               <div className="foot-note">
                 Already have an account?{' '}

@@ -1,19 +1,24 @@
 import { useEffect, useRef, useState } from 'react';
 import type { ScreenId } from '../../types';
+import { supabase } from '../../lib/supabase';
 
 interface Props {
   isActive: boolean;
+  email: string;
   onNavigate: (s: ScreenId) => void;
 }
 
-export function Verify({ isActive, onNavigate }: Props) {
-  const [digits, setDigits] = useState<string[]>(['', '', '', '', '', '']);
+export function Verify({ isActive, email, onNavigate }: Props) {
+  const [digits, setDigits]     = useState<string[]>(['', '', '', '', '', '']);
   const [countdown, setCountdown] = useState(24);
+  const [error, setError]       = useState('');
+  const [loading, setLoading]   = useState(false);
   const refs = useRef<(HTMLInputElement | null)[]>([]);
 
   useEffect(() => {
     if (!isActive) return;
     setCountdown(24);
+    setError('');
     const id = setInterval(() => setCountdown(c => Math.max(0, c - 1)), 1000);
     return () => clearInterval(id);
   }, [isActive]);
@@ -33,6 +38,26 @@ export function Verify({ isActive, onNavigate }: Props) {
   };
 
   const full = digits.every(d => d.length === 1);
+
+  const handleVerify = async () => {
+    setError('');
+    setLoading(true);
+    const token = digits.join('');
+    const { error: err } = await supabase.auth.verifyOtp({
+      email,
+      token,
+      type: 'signup',
+    });
+    setLoading(false);
+    if (err) { setError(err.message); return; }
+    onNavigate('onboarding');
+  };
+
+  const handleResend = async () => {
+    if (countdown > 0) return;
+    await supabase.auth.resend({ type: 'signup', email });
+    setCountdown(30);
+  };
 
   return (
     <section
@@ -55,7 +80,10 @@ export function Verify({ isActive, onNavigate }: Props) {
               </svg>
             </div>
             <h1 className="title">Verify your email</h1>
-            <p>We sent a 6-digit code to <b>ada@harvard.edu</b>. Enter it below to confirm your identity.</p>
+            <p>We sent a 6-digit code to <b>{email || 'your email'}</b>. Enter it below to confirm your identity.</p>
+
+            {error && <div className="form-error">{error}</div>}
+
             <div className="codes">
               {digits.map((d, i) => (
                 <input
@@ -70,12 +98,12 @@ export function Verify({ isActive, onNavigate }: Props) {
                 />
               ))}
             </div>
-            <button className="btn btn-primary btn-block" disabled={!full} onClick={() => onNavigate('onboarding')}>
-              Verify &amp; continue <span className="arr">→</span>
+            <button className="btn btn-primary btn-block" disabled={!full || loading} onClick={handleVerify}>
+              {loading ? 'Verifying…' : <span>Verify &amp; continue <span className="arr">→</span></span>}
             </button>
             <div className="resend mt24">
               Didn't get it?{' '}
-              <b onClick={() => countdown === 0 && setCountdown(30)}>
+              <b onClick={handleResend} style={{ cursor: countdown === 0 ? 'pointer' : 'default' }}>
                 {countdown > 0 ? `Resend in 0:${String(countdown).padStart(2, '0')}` : 'Resend code'}
               </b>
             </div>

@@ -14,15 +14,16 @@ export default function App() {
   const [screen, setScreen] = useState<ScreenId>('signup');
   const [role, setRole] = useState<Role>('student');
   const [authFeel, setAuthFeel] = useState<AuthFeel>('warm');
+  const [pendingEmail, setPendingEmail] = useState('');
   const profile = ROLES[role];
 
   return (
     <div className="app" data-auth={authFeel}>
       <Navigator current={screen} role={role} authFeel={authFeel} onNavigate={setScreen} onRoleChange={setRole} onAuthFeel={setAuthFeel} />
       <div className="screens">
-        <SignUp isActive={screen === 'signup'} role={role} onNavigate={setScreen} onRoleChange={setRole} />
-        <SignIn isActive={screen === 'signin'} onNavigate={setScreen} />
-        <Verify isActive={screen === 'verify'} onNavigate={setScreen} />
+        <SignUp isActive={screen === 'signup'} role={role} onNavigate={setScreen} onRoleChange={setRole} onPendingEmail={setPendingEmail} />
+        <SignIn isActive={screen === 'signin'} onNavigate={setScreen} onPendingEmail={setPendingEmail} />
+        <Verify isActive={screen === 'verify'} email={pendingEmail} onNavigate={setScreen} />
         <Onboarding isActive={screen === 'onboarding'} role={role} profile={profile} onNavigate={setScreen} />
         <Dashboard isActive={screen === 'dashboard'} profile={profile} onNavigate={setScreen} />
         <Connect isActive={screen === 'connect'} profile={profile} onNavigate={setScreen} />

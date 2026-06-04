@@ -274,3 +274,14 @@ h1.title, .title { font-family: var(--display); font-weight: var(--display-weigh
 .term .pr { color: var(--accent); }
 .caret { display: inline-block; width: 8px; height: 14px; background: #52A543; animation: blink 1s step-end infinite; vertical-align: middle; margin-left: 2px; }
 @keyframes blink { 50% { opacity: 0; } }
+
+.form-error {
+  margin-bottom: 14px;
+  padding: 10px 14px;
+  background: rgba(216,99,63,0.10);
+  border: 1px solid rgba(216,99,63,0.35);
+  border-radius: var(--radius-sm, 4px);
+  color: #e07a5f;
+  font-size: 13px;
+  line-height: 1.5;
+}
