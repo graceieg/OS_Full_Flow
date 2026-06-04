@@ -68,11 +68,11 @@ export function Operate({ isActive, onNavigate: _onNavigate }: Props) {
   const alertIsDanger = operateState === 'lock-lost' || operateState === 'mid-run-fail';
   let alertCopy = '';
   if (operateState === 'out-of-band') {
-    alertCopy = '<b>1 parameter outside its safe band</b> · Parameter 4 is below its calibrated window. Run is allowed but readout may not be reliable.';
+    alertCopy = '<b>1 parameter outside its safe band</b> · Parameter 4 is below its calibrated window. Acquire is allowed but readout may not be reliable.';
   } else if (operateState === 'lock-lost') {
-    alertCopy = '<b>Lock lost</b> · The fridge / drive lock dropped while idle. Recalibrate before running — current readouts will be unreliable.';
+    alertCopy = '<b>Field lock lost</b> · The field lock lost — coil may be detuned. Recalibrate before acquiring — current readouts will be unreliable.';
   } else if (operateState === 'mid-run-fail') {
-    alertCopy = '<b>Lock lost mid-run</b> · The lock dropped at shot 37 / 100. Partial data discarded. Re-acquire and re-run.';
+    alertCopy = '<b>Field lock lost mid-run</b> · The lock dropped at shot 37 / 100. Partial data discarded. Re-lock field and retry.';
   }
 
   const alertActions = (): { label: string; primary: boolean }[] => {
@@ -80,16 +80,16 @@ export function Operate({ isActive, onNavigate: _onNavigate }: Props) {
       return [{ label: 'Snap to safe', primary: true }, { label: 'Review', primary: false }];
     }
     if (operateState === 'lock-lost' || operateState === 'mid-run-fail') {
-      return [{ label: 'Re-acquire lock', primary: true }, { label: 'View diagnostics', primary: false }];
+      return [{ label: 'Re-lock field', primary: true }, { label: 'View diagnostics', primary: false }];
     }
     return [];
   };
 
   // Run blocked content
-  const rbTitle = 'Run blocked';
+  const rbTitle = 'Acquire blocked';
   const rbBody  = '<b>Parameter 4</b> ([value]) is below its safe band of [lo]–[hi]. Bring it into the band, or override if you understand the trade-off.';
   const rbActions = [
-    { label: 'Snap to safe & run', primary: true },
+    { label: 'Snap to safe & acquire', primary: true },
     { label: 'Override (type "I understand")', primary: false },
     { label: 'Cancel', primary: false },
   ];
@@ -108,19 +108,19 @@ export function Operate({ isActive, onNavigate: _onNavigate }: Props) {
     rpBody    = 'Translating UI commands into firmware-ready packets and validating round-trip timing.';
     rpActions.push({ label: 'Cancel', primary: false });
   } else if (operateState === 'running') {
-    rpTitle   = 'Running';
+    rpTitle   = 'Acquiring';
     rpCount   = '37 / 100 shots';
     rpFillPct = 37;
     rpBody    = 'Live trace updating on the right. Pause to inspect mid-run; abort discards partial data.';
     rpActions.push({ label: 'Pause', primary: false }, { label: 'Abort run', primary: false });
   } else if (operateState === 'completed') {
-    rpTitle   = 'Run complete';
+    rpTitle   = 'Acquisition complete';
     rpCount   = '100 / 100 shots';
     rpFillPct = 100;
-    rpBody    = 'All readouts within target. Save the run, compare against a previous result, or re-run with a tweaked parameter.';
+    rpBody    = 'All readouts within target. Save the result, compare against a previous result, or acquire again with a tweaked parameter.';
     rpActions.push(
-      { label: 'Save run', primary: true },
-      { label: 'Run again', primary: false },
+      { label: 'Save result', primary: true },
+      { label: 'Acquire again', primary: false },
       { label: 'Compare to previous', primary: false },
     );
   }
@@ -171,10 +171,10 @@ export function Operate({ isActive, onNavigate: _onNavigate }: Props) {
   };
 
   const defaultStats: StatTile[] = [
-    { k: '[Metric 1]', v: '[value]', u: '[unit]', targetClass: 'target', targetText: 'target [range]' },
-    { k: '[Metric 2]', v: '[value]', u: '[unit]', targetClass: 'target ok', targetText: 'within target' },
-    { k: '[Metric 3]', v: '[value]', u: '[unit]', targetClass: 'target', targetText: 'typical [range]' },
-    { k: '[Metric 4]', v: '[value]', u: '[unit]', targetClass: 'target', targetText: 'aim [range]' },
+    { k: 'T₂ (ms)',           v: '[value]', u: '[unit]', targetClass: 'target', targetText: 'target [range]' },
+    { k: 'SNR',               v: '[value]', u: '[unit]', targetClass: 'target ok', targetText: 'within target' },
+    { k: 'Larmor freq (Hz)',  v: '[value]', u: '[unit]', targetClass: 'target', targetText: 'typical [range]' },
+    { k: 'Echo count',        v: '[value]', u: '[unit]', targetClass: 'target', targetText: 'aim [range]' },
   ];
 
   const stats: StatTile[] = defaultStats.map((s, i) => {
@@ -533,7 +533,7 @@ export function Operate({ isActive, onNavigate: _onNavigate }: Props) {
                   </div>
                 )}
                 <div className={`scope-recovery${operateState === 'mid-run-fail' ? ' is-visible' : ''}`}>
-                  <button className="r-btn primary">Re-acquire lock</button>
+                  <button className="r-btn primary">Re-lock field</button>
                   <button className="r-btn">Abort run</button>
                   <button className="r-btn">View diagnostics</button>
                 </div>
@@ -581,7 +581,7 @@ export function Operate({ isActive, onNavigate: _onNavigate }: Props) {
             <span className="label">Status</span>
             <span>{footerMsg}</span>
             <div className="spacer" />
-            <span className="keys">Run <kbd>↵</kbd> &nbsp; Reset <kbd>R</kbd></span>
+            <span className="keys">Acquire <kbd>↵</kbd> &nbsp; Reset <kbd>R</kbd></span>
           </div>
         </div>
 
