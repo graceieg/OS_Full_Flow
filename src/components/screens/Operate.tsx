@@ -203,9 +203,8 @@ export function Operate({ isActive, onNavigate: _onNavigate }: Props) {
     colRFailure ? 'is-failure' : '',
   ].filter(Boolean).join(' ');
 
-  if (!isActive) return null;
-
   return (
+    <section className={`screen${isActive ? ' active' : ''}`} data-screen="operate" data-temp="cold">
     <div className="operate-screen">
       <div className="frame">
         <div className="stage">
@@ -608,5 +607,6 @@ export function Operate({ isActive, onNavigate: _onNavigate }: Props) {
         </div>
       </div>
     </div>
+    </section>
   );
 }
