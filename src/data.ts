@@ -52,7 +52,7 @@ export const ROLES: Record<Role, RoleProfile> = {
 };
 
 export const SCREEN_KNOB: Record<string, number> = {
-  signup: 8, signin: 8, verify: 26, onboarding: 45, dashboard: 66, connect: 92,
+  signup: 8, signin: 8, verify: 26, onboarding: 45, dashboard: 66, connect: 92, operate: 100,
 };
 
-export const HAPPY_PATH = ['signup', 'verify', 'onboarding', 'dashboard', 'connect'];
+export const HAPPY_PATH = ['signup', 'verify', 'onboarding', 'dashboard', 'connect', 'operate'];

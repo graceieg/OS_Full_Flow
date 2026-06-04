@@ -1,4 +1,4 @@
-export type ScreenId = 'signup' | 'signin' | 'verify' | 'onboarding' | 'dashboard' | 'connect';
+export type ScreenId = 'signup' | 'signin' | 'verify' | 'onboarding' | 'dashboard' | 'connect' | 'operate';
 export type Role = 'student' | 'researcher' | 'educator';
 export type AuthFeel = 'warm' | 'technical';
 

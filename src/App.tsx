@@ -8,6 +8,7 @@ import { Verify } from './components/screens/Verify';
 import { Onboarding } from './components/screens/Onboarding';
 import { Dashboard } from './components/screens/Dashboard';
 import { Connect } from './components/screens/Connect';
+import { Operate } from './components/screens/Operate';
 
 export default function App() {
   const [screen, setScreen] = useState<ScreenId>('signup');
@@ -25,6 +26,7 @@ export default function App() {
         <Onboarding isActive={screen === 'onboarding'} role={role} profile={profile} onNavigate={setScreen} />
         <Dashboard isActive={screen === 'dashboard'} profile={profile} onNavigate={setScreen} />
         <Connect isActive={screen === 'connect'} profile={profile} onNavigate={setScreen} />
+        <Operate isActive={screen === 'operate'} onNavigate={setScreen} />
       </div>
     </div>
   );

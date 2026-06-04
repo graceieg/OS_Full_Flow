@@ -154,7 +154,7 @@ export function Connect({ isActive, profile, onNavigate }: Props) {
                 {!showEnter && <span className="ln"><span className="caret" /></span>}
               </div>
               {showEnter && (
-                <button className="btn btn-primary btn-block mt16" onClick={() => onNavigate('connect')}>
+                <button className="btn btn-primary btn-block mt16" onClick={() => onNavigate('operate')}>
                   Enter operate view <span className="arr">→</span>
                 </button>
               )}
