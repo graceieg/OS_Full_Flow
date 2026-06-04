@@ -43,7 +43,7 @@ export function Navigator({ current, role, authFeel, onNavigate, onRoleChange, o
               key={s.id}
               className={`step${isOn ? ' on' : ''}${isDone ? ' done' : ''}`}
               data-t={s.t}
-              onClick={() => s.id !== 'operate' && onNavigate(s.id as ScreenId)}
+              onClick={() => onNavigate(s.id as ScreenId)}
             >
               <span className="tdot" />
               {s.sn && <span className="sn">{s.sn}</span>}
