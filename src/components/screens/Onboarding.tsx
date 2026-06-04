@@ -24,8 +24,8 @@ function useChecklist() {
   const [items, setItems] = useState<CheckItem[]>([
     { id: 'verified', label: 'Account verified', desc: 'Identity confirmed via email.', sheet: null, done: true, cur: false },
     { id: 'profile', label: 'Complete your profile', desc: 'Add your institution and class code so bookings route correctly.', sheet: 'profile', done: false, cur: true },
-    { id: 'safety', label: 'Read the safety primer', desc: '2-minute read on lock, drive power, and safe-band limits.', sheet: 'safety', done: false, cur: false },
-    { id: 'physics', label: 'How your qubit works', desc: 'The spin-physics your qubit is built on — and what each control really does.', sheet: 'physics', done: false, cur: false },
+    { id: 'safety', label: 'Read the safety primer', desc: '2-minute read on the magnetic field, polarization-coil current, and coil tuning.', sheet: 'safety', done: false, cur: false },
+    { id: 'physics', label: 'How NMR works', desc: 'Proton spin in the Earth\'s field, Larmor precession, and the free-induction decay you\'ll measure.', sheet: 'physics', done: false, cur: false },
     { id: 'tour', label: 'Take the 2-minute tour', desc: 'See how the coach, safe-bands, and Run & analyse step fit together.', sheet: 'tour', done: false, cur: false },
   ]);
 
@@ -100,35 +100,35 @@ function SafetySheet({ onClose, onComplete }: { onClose: () => void; onComplete:
         <div>
           <div className="eyebrow">2-minute read</div>
           <div className="st">Safety primer</div>
-          <div className="ss">Three things to know before you fire a pulse.</div>
+          <div className="ss">Three things to know before you energize the coils.</div>
         </div>
         <div className="sheet-x" onClick={onClose}>✕</div>
       </div>
       <div className="sheet-body">
         <div className="primer-sec">
-          <div className="pi"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="5" y="11" width="14" height="9" rx="2" /><path d="M8 11V7a4 4 0 0 1 8 0v4" /></svg></div>
+          <div className="pi"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M6 4v7a6 6 0 0 0 12 0V4"/><line x1="5" y1="4" x2="9" y2="4"/><line x1="15" y1="4" x2="19" y2="4"/></svg></div>
           <div>
-            <h4>Lock <span className="tag">42.577 MHz</span></h4>
-            <p>The drive stays frequency-<b>locked</b> to the qubit. If lock drifts, runs are <b>blocked</b> until it re-acquires — you'll see lock status live in the top strip.</p>
+            <h4>Magnetic field <span className="tag">10.5 mT</span></h4>
+            <p>During polarization the coil produces <b>~200× the Earth's field</b>. It's strong but <b>local to the bore</b> — keep phones, cards, and loose ferromagnetic tools clear, and stay back if you have a pacemaker or metal implant.</p>
           </div>
         </div>
         <div className="primer-sec">
           <div className="pi"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z" /></svg></div>
           <div>
-            <h4>Drive power <span className="tag">dBm</span></h4>
-            <p>Pulses are delivered in <b>dBm</b>. Stay under your assigned ceiling — the coach warns before you cross it. <b>More power isn't more signal.</b></p>
+            <h4>Polarization-coil current <span className="tag">13.4 A</span></h4>
+            <p>The polarization coil draws <b>13.4 A</b> and gets <b>warm</b>. <b>Never touch the coil leads while a run is energized</b>, and let the coil cool between long CPMG trains.</p>
           </div>
         </div>
         <div className="primer-sec">
-          <div className="pi"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><line x1="3" y1="12" x2="21" y2="12" /><rect x="9" y="8" width="6" height="8" rx="1" fill="rgba(82,165,67,0.25)" stroke="#52A543" /><circle cx="12" cy="12" r="2.4" fill="#52A543" stroke="none" /></svg></div>
+          <div className="pi"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M2 12c2.5 0 2.5-7 5-7s2.5 14 5 14 2.5-7 5-7h5" strokeLinecap="round"/></svg></div>
           <div>
-            <h4>Safe-band limits <span className="tag">green band</span></h4>
-            <p>Every parameter slider has a <b>green safe band</b>. Inside it, the hardware is protected. Outside it, the run is blocked and you're offered a <b>one-tap correction</b>.</p>
+            <h4>Coil resonance tuning <span className="tag">2083 Hz</span></h4>
+            <p>The receive coil is tuned to resonance at the Larmor frequency. <b>Don't move ferromagnetic objects near the bore mid-run</b> — it shifts B₀ and ruins the average. Re-tune from the calibrate step if the peak drifts.</p>
           </div>
         </div>
         <div className={`checkrow mt24${ack ? ' on' : ''}`} onClick={() => setAck(!ack)}>
           <span className="cb">{ack ? '✓' : ''}</span>
-          I understand the lock, drive-power, and safe-band limits.
+          I understand the magnetic-field, coil-current, and resonance-tuning precautions.
         </div>
       </div>
       <div className="sheet-foot">
@@ -154,9 +154,9 @@ function PhysicsSheet({ onClose, onComplete }: { onClose: () => void; onComplete
           </svg>
         </div>
         <div>
-          <div className="eyebrow">The basis</div>
-          <div className="st">How your qubit works</div>
-          <div className="ss">Your qubit is a real spin. Here's the physics — and how it maps to the controls you'll use.</div>
+          <div className="eyebrow">The physics</div>
+          <div className="st">How NMR works</div>
+          <div className="ss">Proton spin in the Earth's field, Larmor precession, and the free-induction decay — what each step of a run is doing.</div>
         </div>
         <div className="sheet-x" onClick={onClose}>✕</div>
       </div>
@@ -176,19 +176,20 @@ function PhysicsSheet({ onClose, onComplete }: { onClose: () => void; onComplete
             </svg>
           </div>
           <div className="lh-copy">
-            <div className="eyebrow">Spin → qubit</div>
-            <h3>A controlled nuclear spin is a two-level system.</h3>
-            <p>Place a spin in a magnetic field and it settles into two energy states — <span className="ket">|0⟩</span> and <span className="ket">|1⟩</span>. Tip it with a resonant pulse and it <b>precesses</b>, tracing the Bloch sphere.</p>
+            <div className="eyebrow">Proton spin · Earth's field</div>
+            <h3>A proton is a tiny magnet that precesses.</h3>
+            <p>Every proton in the water sample carries a nuclear spin. In the Earth's field B₀ the spins line up, and once tipped they <b>precess</b> around the field. The precession rate is the <b>Larmor frequency</b>, ω = γB₀ — about <b>2083 Hz</b> here, right in the audio band.</p>
           </div>
         </div>
-        <div className="map-head"><span className="mh-from">Spin physics · Earth's-field NMR</span><span /><span className="mh-to">On your qubit</span></div>
+        <div className="map-head"><span className="mh-from">In the coil</span><span className="mh-mid" /><span className="mh-to">On the scope</span></div>
         {[
-          ['Larmor resonance', 'omega=gamma*B0, ~2 kHz Earth field', 'Drive lock', '42.577 MHz'],
-          ['Resonant pulse', 'tips magnetization into the plane', 'Single-qubit gate', 'a rotation, flip angle theta'],
-          ['90deg / inversion pulses', 'excite, then invert the spin', 'X / Y operations', 'excite, then refocus with pi pulse'],
-          ['Free precession (delay tau)', 'phase winds up between pulses', 'Phase evolution (Z)', 'echo delay tau controls wind-up'],
-          ['Spin echo / CPMG', 'cancels static dephasing', 'Dynamical decoupling', 'the spin-echo recipe run first'],
-          ['T1 / T2 relaxation', 'signal averaging over transients', 'Coherence time', 'T2* the number your experiment measures'],
+          ['1 · Pre-polarize', '10.5 mT coil · ~7 s · 13.4 A draw', 'Magnetization builds', 'net spin lines up along the coil axis'],
+          ['2 · Adiabatic turn-off', 'coil current ramps down over ~10 ms', 'M follows the field', 'rotates to align with Earth\'s B₀'],
+          ['3 · 90° pulse', 'audio burst at 2083 Hz · n cycles', 'Tipped into plane', 'precession about B₀ begins'],
+          ['4 · Free precession', 'spins precess at ω = γB₀', 'Voltage induced', 'precessing M induces a signal in the coil'],
+          ['5 · Dephasing', 'field inhomogeneity spreads the spins', 'Free-induction decay', 'the FID — a 2083 Hz tone decaying away'],
+          ['6 · 180° refocus (spin-echo)', 'π pulse after delay τ', 'An echo forms', 'dephasing reverses · peak at 2τ'],
+          ['7 · CPMG train', 'π/2 — (τ — π — τ)×16', 'Echo train decays', 'envelope measures T₂ · ~1.9 s for water'],
         ].map(([ft, fd, tt, td]) => (
           <div key={ft} className="map-row">
             <div className="map-cell from"><div className="mc-t">{ft}</div><div className="mc-d">{fd}</div></div>
@@ -199,13 +200,13 @@ function PhysicsSheet({ onClose, onComplete }: { onClose: () => void; onComplete
         <div className="heritage">
           <div className="h-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M4 5h11a2 2 0 0 1 2 2v13a2 2 0 0 0-2-2H4z" /><path d="M20 5h-3a2 2 0 0 0-2 2v13a2 2 0 0 1 2-2h3z" /></svg></div>
           <div className="h-body">
-            <b>Heritage.</b> The pulse-and-precession control behind Katmai's qubit was first proven on benchtop <b>Earth's-field NMR</b>, where a single coil manipulates nuclear spins at audio frequency.
+            <b>The instrument.</b> An Arduino microcontroller acts as pulse programmer, audio-frequency synthesizer and digitizer, driving one transmit/receive coil and a separate polarization coil around a 0.55 L water sample. No superconducting magnet — the whole spectrometer can be built for about US$200.
             <span className="cite">Reference · C A Michal, "A low-cost spectrometer for NMR measurements in the Earth's magnetic field," Meas. Sci. Technol. 21 (2010) 105902.</span>
           </div>
         </div>
       </div>
       <div className="sheet-foot">
-        <span className="meta">The basis · onboarding</span>
+        <span className="meta">The physics · onboarding</span>
         <span className="spacer" />
         <button className="btn btn-ghost" onClick={onClose}>Close</button>
         <button className="btn btn-primary" onClick={onComplete}>Got it</button>
@@ -217,12 +218,12 @@ function PhysicsSheet({ onClose, onComplete }: { onClose: () => void; onComplete
 const TOUR_STEPS = [
   {
     num: '01 · Workflow', title: 'Four steps, left to right.',
-    body: 'Pick recipe → Calibrate channel → Set parameters → Run & analyse. The stepper on the left always shows where you are and what\'s next.',
+    body: 'Pick sequence → Tune to resonance → Set parameters → Run & analyse. The stepper on the left always shows where you are and what\'s next.',
     art: (
       <svg viewBox="0 0 400 168" preserveAspectRatio="xMidYMid meet">
         <line x1="60" y1="84" x2="340" y2="84" stroke="rgba(255,255,255,0.12)" strokeWidth="1.5" />
         <g fontFamily="'JetBrains Mono',monospace" fontSize="9" fill="#9aa0ab" textAnchor="middle">
-          <circle cx="60" cy="84" r="9" fill="#52A543" /><text x="60" y="112">Recipe</text>
+          <circle cx="60" cy="84" r="9" fill="#52A543" /><text x="60" y="112">Sequence</text>
           <circle cx="153" cy="84" r="9" fill="#52A543" /><text x="153" y="112">Calibrate</text>
           <circle cx="247" cy="84" r="11" fill="#E59C3B" /><text x="247" y="114" fill="#eef0f3">Parameters</text>
           <circle cx="340" cy="84" r="9" fill="none" stroke="#5a606b" strokeWidth="1.5" /><text x="340" y="112" fill="#5a606b">Run</text>
@@ -257,7 +258,7 @@ const TOUR_STEPS = [
   },
   {
     num: '04 · Run & analyse', title: 'Fire shots, compare to target.',
-    body: 'Arm, then run your shots. The live readout and histogram fill in, and you compare the measured T₂* against the experiment\'s target band.',
+    body: 'Arm, then run your transients. The live FID and spectrum fill in, and you compare the measured value (e.g. T₂) against the experiment\'s target band.',
     art: (
       <svg viewBox="0 0 400 168" preserveAspectRatio="xMidYMid meet">
         <line x1="60" y1="130" x2="340" y2="130" stroke="rgba(255,255,255,0.12)" />

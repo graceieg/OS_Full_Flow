@@ -52,10 +52,10 @@ export function SignIn({ isActive, onNavigate, onPendingEmail }: Props) {
             </div>
             <div className="bhero">
               <div className="eyebrow">Welcome back</div>
-              <h2>Your <em>quantum device</em> session is waiting.</h2>
-              <p>Pick up where you left off — last run: spin-echo · π/2 — τ — π, T₂* = 11.8 μs.</p>
+              <h2>Your <em>spectrometer</em> session is waiting.</h2>
+              <p>Pick up where you left off — last run: spin-echo · π/2 — τ — π · 10 ms echo · T₂ = 1.9 s.</p>
               <div className="bstats mt32">
-                <div className="bstat"><div className="n">3</div><div className="l">Saved recipes</div></div>
+                <div className="bstat"><div className="n">3</div><div className="l">Saved sequences</div></div>
                 <div className="bstat"><div className="n">14:00</div><div className="l">Next booking</div></div>
               </div>
             </div>

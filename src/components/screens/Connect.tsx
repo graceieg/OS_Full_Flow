@@ -11,49 +11,36 @@ interface Props {
 type HsState = 'idle' | 'active' | 'done';
 
 const HS_STEPS = [
-  { label: 'Claim device lease', value: 'ok', finalValue: '✓ claimed' },
-  { label: 'Authenticate session token', value: 'ok', finalValue: '✓ 0xA4F2' },
-  { label: 'Sync drive lock 42.577 MHz', value: 'ok', finalValue: '✓ locked' },
-  { label: 'Confirm fridge base 12.4 mK', value: 'ok', finalValue: '✓ 12.4 mK' },
+  { label: 'Detect Arduino over USB', finalValue: '✓ /dev/cu.usbserial-1420' },
+  { label: 'Sync Larmor frequency 2083 Hz', finalValue: '✓ 2083 Hz' },
+  { label: 'Polarization coil check 10.5 mT', finalValue: '✓ 10.5 mT · 13.4 A' },
+  { label: 'Ready for handoff', finalValue: '✓ ready' },
 ];
 
-function QrCode() {
-  const N = 21;
-  const cells: { x: number; y: number }[] = [];
-
-  for (let y = 0; y < N; y++) {
-    for (let x = 0; x < N; x++) {
-      const finder = (x < 7 && y < 7) || (x >= N - 7 && y < 7) || (x < 7 && y >= N - 7);
-      let on: boolean;
-      if (finder) {
-        const inFinder = (fx: number, fy: number) =>
-          (fx < 7 && fy < 7 && (fx === 0 || fx === 6 || fy === 0 || fy === 6 || (fx >= 2 && fx <= 4 && fy >= 2 && fy <= 4))) ||
-          (fx >= N - 7 && fy < 7 && ((fx === N - 7 || fx === N - 1 || fy === 0 || fy === 6 || (fx >= N - 5 && fx <= N - 3 && fy >= 2 && fy <= 4)))) ||
-          (fx < 7 && fy >= N - 7 && (fx === 0 || fx === 6 || fy === N - 7 || fy === N - 1 || (fx >= 2 && fx <= 4 && fy >= N - 5 && fy <= N - 3)));
-        on = inFinder(x, y);
-      } else {
-        const hash = (x * 31 + y * 17 + x * y * 7) % 100;
-        on = hash < 45;
-      }
-      if (on) cells.push({ x, y });
-    }
-  }
-
-  const size = 100;
-  const cell = size / N;
-
+function ArduinoUSB({ connected }: { connected: boolean }) {
   return (
-    <svg viewBox={`0 0 ${size} ${size}`}>
-      {cells.map(({ x, y }) => (
-        <rect key={`${x}-${y}`} x={x * cell} y={y * cell} width={cell - 0.3} height={cell - 0.3} fill="#000" />
-      ))}
+    <svg viewBox="0 0 220 132" aria-hidden="true">
+      <path d="M8 66 H70" stroke="var(--faint)" strokeWidth="3" strokeLinecap="round" />
+      <rect x="6" y="60" width="10" height="12" rx="2" fill="var(--faint)" />
+      <rect x="68" y="56" width="20" height="20" rx="2" fill="none" stroke="var(--accent)" strokeWidth="1.6" />
+      <rect x="92" y="34" width="118" height="64" rx="4" fill="var(--card)" stroke="var(--border-hi)" strokeWidth="1" />
+      <rect x="100" y="52" width="34" height="28" rx="2" fill="none" stroke="var(--dim)" strokeWidth="1" />
+      <g fill="var(--faint)">
+        <rect x="144" y="40" width="3" height="7" /><rect x="150" y="40" width="3" height="7" />
+        <rect x="156" y="40" width="3" height="7" /><rect x="162" y="40" width="3" height="7" />
+        <rect x="168" y="40" width="3" height="7" /><rect x="174" y="40" width="3" height="7" />
+        <rect x="150" y="85" width="3" height="7" /><rect x="156" y="85" width="3" height="7" />
+        <rect x="162" y="85" width="3" height="7" /><rect x="168" y="85" width="3" height="7" />
+      </g>
+      <circle cx="192" cy="56" r="3.4" fill={connected ? '#52A543' : 'var(--faint)'} />
+      <text x="151" y="120" fontFamily="'JetBrains Mono',monospace" fontSize="9" fill="var(--faint)" textAnchor="middle">ATmega328 · 16 MHz</text>
     </svg>
   );
 }
 
 export function Connect({ isActive, profile, onNavigate }: Props) {
   const [hsStates, setHsStates] = useState<HsState[]>(['idle', 'idle', 'idle', 'idle']);
-  const [termLines, setTermLines] = useState<string[]>(['<span class="pr">grace$</span> awaiting bench check-in…']);
+  const [termLines, setTermLines] = useState<string[]>(['<span class="pr">catmay$</span> awaiting USB connection…']);
   const [showEnter, setShowEnter] = useState(false);
   const [running, setRunning] = useState(false);
 
@@ -65,20 +52,20 @@ export function Connect({ isActive, profile, onNavigate }: Props) {
     if (running) return;
     setRunning(true);
     setHsStates(['active', 'idle', 'idle', 'idle']);
-    addLine('<span class="pr">grace$</span> connect KAT-0429-A');
+    addLine('<span class="pr">catmay$</span> connect EFNMR-01');
 
     const delays = [0, 600, 1200, 1800];
     const msgs = [
-      'claiming device lease…',
-      'authenticating session token…',
-      'syncing drive lock 42.577 MHz…',
-      'confirming fridge base 12.4 mK…',
+      'detecting Arduino over USB…',
+      'syncing Larmor frequency 2083 Hz…',
+      'checking polarization coil 10.5 mT…',
+      'ready for handoff…',
     ];
     const dones = [
-      'lease claimed ✓',
-      'token 0xA4F2 ✓',
-      'lock acquired 42.577 MHz ✓',
-      'fridge confirmed 12.4 mK ✓',
+      'Arduino detected · /dev/cu.usbserial-1420 ✓',
+      'Larmor synced · 2083 Hz ✓',
+      'coil ok · 10.5 mT · 13.4 A ✓',
+      'ready ✓',
     ];
 
     delays.forEach((d, i) => {
@@ -102,7 +89,7 @@ export function Connect({ isActive, profile, onNavigate }: Props) {
   useEffect(() => {
     if (!isActive) {
       setHsStates(['idle', 'idle', 'idle', 'idle']);
-      setTermLines(['<span class="pr">grace$</span> awaiting bench check-in…']);
+      setTermLines(['<span class="pr">catmay$</span> awaiting USB connection…']);
       setShowEnter(false);
       setRunning(false);
     }
@@ -118,12 +105,13 @@ export function Connect({ isActive, profile, onNavigate }: Props) {
               CatMayOS
             </div>
             <div className="eyebrow mt32">Bench check-in</div>
-            <h1 className="title" style={{ fontSize: 32 }}>Connect to Quantum-04.</h1>
-            <p className="lede mt8" style={{ maxWidth: '44ch' }}>Your booking is active. Scan the QR on the bench unit, or enter its serial, to claim the device for your session.</p>
+            <h1 className="title" style={{ fontSize: 32 }}>Connect to EFNMR-01.</h1>
+            <p className="lede mt8" style={{ maxWidth: '46ch' }}>Your booking is active. Plug the spectrometer's Arduino into your laptop over USB to claim the instrument for your session.</p>
 
             <div className="booked-card">
-              <div className="bcrow"><span className="bck">DEVICE</span><span className="bcv accent">Quantum-04</span></div>
-              <div className="bcrow"><span className="bck">BENCH</span><span className="bcv">2 · Room 114</span></div>
+              <div className="bcrow"><span className="bck">DEVICE</span><span className="bcv accent">EFNMR-01</span></div>
+              <div className="bcrow"><span className="bck">CONTROLLER</span><span className="bcv">Arduino Duemilanove</span></div>
+              <div className="bcrow"><span className="bck">BENCH</span><span className="bcv">1 · Room 114</span></div>
               <div className="bcrow"><span className="bck">SLOT</span><span className="bcv">14:00 – 15:00 · 52 min left</span></div>
               <div className="bcrow"><span className="bck">OPERATOR</span><span className="bcv">{profile.operator}</span></div>
             </div>
@@ -140,12 +128,14 @@ export function Connect({ isActive, profile, onNavigate }: Props) {
           </div>
 
           <div className="cright">
-            <div style={{ maxWidth: 340, margin: '0 auto', width: '100%' }}>
-              <div className="qr-box"><QrCode /></div>
-              <div className="meta" style={{ textAlign: 'center' }}>Point the bench camera here, or enter serial</div>
+            <div style={{ maxWidth: 360, margin: '0 auto', width: '100%' }}>
+              <div className="usb-box">
+                <ArduinoUSB connected={showEnter} />
+              </div>
+              <div className="meta" style={{ textAlign: 'center' }}>USB serial · 9600 baud · detected port</div>
               <div className="serial-entry">
-                <input className="input mono" defaultValue="KAT-0429-A" />
-                <button className="btn btn-primary" onClick={startHandshake} disabled={running}>Connect</button>
+                <input className="input mono" defaultValue="/dev/cu.usbserial-1420" readOnly />
+                <button className="btn btn-primary" onClick={startHandshake} disabled={running}>Connect over USB</button>
               </div>
               <div className="term">
                 {termLines.map((line, i) => (

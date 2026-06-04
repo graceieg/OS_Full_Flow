@@ -92,16 +92,16 @@ export function SignUp({ isActive, role, onNavigate, onRoleChange, onPendingEmai
               Katmai Computing
             </div>
             <div className="bhero">
-              <div className="eyebrow">Quantum you can hold</div>
-              <h2>Run a real <em>quantum experiment</em> by Friday.</h2>
-              <p>Create an account to reserve a quantum device, follow guided courses, and fire your first pulse sequence — no cleanroom required.</p>
+              <div className="eyebrow">NMR in the Earth's field</div>
+              <h2>Record a real <em>free-induction decay</em> by Friday.</h2>
+              <p>Create an account to book the shared NMR spectrometer, follow guided pulse-sequence labs, and watch protons precess — no superconducting magnet required.</p>
               <BrandWave />
               <div className="bstats">
-                <div className="bstat"><div className="n">42.577<span style={{ fontSize: 14, color: 'var(--dim)' }}> MHz</span></div><div className="l">Drive lock</div></div>
-                <div className="bstat"><div className="n">12.4<span style={{ fontSize: 14, color: 'var(--dim)' }}> mK</span></div><div className="l">Fridge base</div></div>
-                <div className="bstat"><div className="n">6<span style={{ fontSize: 14, color: 'var(--dim)' }}> units</span></div><div className="l">Lab fleet</div></div>
+                <div className="bstat"><div className="n">2083<span style={{ fontSize: 14, color: 'var(--dim)' }}> Hz</span></div><div className="l">Larmor frequency</div></div>
+                <div className="bstat"><div className="n">10.5<span style={{ fontSize: 14, color: 'var(--dim)' }}> mT</span></div><div className="l">Polarization field</div></div>
+                <div className="bstat"><div className="n">H₂O</div><div className="l">Water sample</div></div>
               </div>
-              <div className="seed-chip"><span className="sc-dot" />Qubit lineage — <b>controlled nuclear spin</b>, after Earth's-field NMR</div>
+              <div className="seed-chip"><span className="sc-dot" />Built on an <b>Arduino spectrometer</b> — proton spins at audio frequency</div>
             </div>
           </div>
 
@@ -109,7 +109,7 @@ export function SignUp({ isActive, role, onNavigate, onRoleChange, onPendingEmai
             <div className="formwrap">
               <div className="fh">
                 <h1 className="title">Create your account</h1>
-                <p>Start with a simulator instantly. Book hardware once you're verified.</p>
+                <p>Practice on the FID simulator instantly. Book the spectrometer once you're verified.</p>
               </div>
 
               {error && <div className="form-error">{error}</div>}
@@ -132,8 +132,8 @@ export function SignUp({ isActive, role, onNavigate, onRoleChange, onPendingEmai
                 <div className="opts">
                   {([
                     ['student', 'Student', 'Enrolled in a course — join with a class code.'],
-                    ['researcher', 'Researcher', 'Independent access to book devices and write recipes.'],
-                    ['educator', 'Educator', 'Set up classes, manage seats, and assign experiments.'],
+                    ['researcher', 'Researcher', 'Independent access — book the spectrometer and write your own pulse sequences.'],
+                    ['educator', 'Educator', 'Set up classes, manage seats, and assign pulse-sequence experiments.'],
                   ] as [Role, string, string][]).map(([r, label, desc]) => (
                     <div key={r} className={`opt${selRole === r ? ' sel' : ''}`} onClick={() => handleRole(r)}>
                       <div className="rk" />
