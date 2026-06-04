@@ -1,7 +1,7 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 html, body, #root { height: 100%; max-width: 100%; overflow-x: hidden; }
 body { background: #050608; color: #eef0f3; font-family: 'Inter Tight', system-ui, sans-serif; -webkit-font-smoothing: antialiased; overflow: hidden; }
-.app { height: 100vh; width: 100%; max-width: 100vw; display: grid; grid-template-rows: 52px 1fr; overflow: hidden; }
+.app { height: 100vh; width: 100%; max-width: 100vw; display: flex; flex-direction: column; overflow: hidden; }
 .nav { display: flex; align-items: center; gap: 18px; padding: 0 18px; background: #0a0b0f; border-bottom: 1px solid rgba(255,255,255,0.07); font-family: 'JetBrains Mono', monospace; z-index: 50; min-width: 0; }
 .nav .mark { display: flex; align-items: center; gap: 9px; font-family: 'Fraunces', serif; font-size: 15px; font-weight: 500; color: #eef0f3; white-space: nowrap; flex: 0 0 auto; }
 .nav .mark svg { display: block; color: #d9a066; }
@@ -33,7 +33,7 @@ body { background: #050608; color: #eef0f3; font-family: 'Inter Tight', system-u
 .app[data-auth="technical"] .seg button.on { background: #E59C3B; }
 @media (max-width: 1380px) { .nav { gap: 12px; } .nav .chip { display: none; } .temp-bar { width: 64px; } }
 @media (max-width: 1180px) { .nav .right { gap: 8px; } .tweak .tlbl { display: none; } .temp-meter { display: none; } }
-.screens { position: relative; overflow: hidden; }
+.screens { position: relative; overflow: hidden; flex: 1; }
 .screen { position: absolute; inset: 0; overflow-y: auto; opacity: 0; visibility: hidden; transition: opacity .45s cubic-bezier(.2,.7,.2,1); --display: 'Fraunces', Georgia, serif; --display-weight: 300; --display-style: normal; --sans: 'Inter Tight', system-ui, sans-serif; --mono: 'JetBrains Mono', monospace; --text: #eef0f3; --dim: #9aa0ab; --faint: #5a606b; --accent: #d9a066; --accent-hi: #e8b478; --accent-ink: #0a0b0f; --cyan: #7fd1d6; --bg: #07080c; --bg-soft: #0b0d14; --card: #0e111a; --card-2: #11141d; --border: rgba(255,255,255,0.08); --border-hi: rgba(255,255,255,0.16); --radius: 20px; --radius-sm: 12px; --field-radius: 10px; --shadow: 0 30px 70px rgba(0,0,0,0.5); --ambiance: 1; }
 .screen.active { opacity: 1; visibility: visible; }
 .screen::-webkit-scrollbar { width: 10px; }
