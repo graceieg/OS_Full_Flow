@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { ScreenId, RoleProfile } from '../../types';
 import { KatmaiLogo } from '../KatmaiLogo';
 
@@ -8,66 +8,62 @@ interface Props {
   onNavigate: (s: ScreenId) => void;
 }
 
-interface DeviceData {
-  id: string;
-  name: string;
-  status: 'online' | 'busy' | 'cooling';
-  statusLabel: string;
-  rows: [string, string][];
-  bench: string;
-  slots: { time: string; state: 'taken' | 'mine' | 'open' }[];
+function SpectroFid() {
+  const pathRef = useRef<SVGPathElement>(null);
+  const animRef = useRef<number>(0);
+  const t = useRef(0);
+
+  useEffect(() => {
+    function draw() {
+      t.current += 0.022;
+      const W = 520, H = 88, pts = 80;
+      let d = '';
+      for (let i = 0; i <= pts; i++) {
+        const x = (i / pts) * W;
+        const decay = Math.exp(-i / pts * 3.2);
+        const y = H / 2 + Math.sin(i / pts * Math.PI * 12 + t.current * 2.1) * 30 * decay;
+        d += (i === 0 ? 'M' : 'L') + `${x.toFixed(1)},${y.toFixed(1)}`;
+      }
+      pathRef.current?.setAttribute('d', d);
+      animRef.current = requestAnimationFrame(draw);
+    }
+    animRef.current = requestAnimationFrame(draw);
+    return () => cancelAnimationFrame(animRef.current);
+  }, []);
+
+  return (
+    <svg className="spectro-fid" viewBox="0 0 520 88" preserveAspectRatio="none">
+      <line x1="0" y1="44" x2="520" y2="44" stroke="rgba(255,255,255,0.06)" strokeWidth="1" />
+      <path ref={pathRef} fill="none" stroke="var(--accent)" strokeWidth="1.4" opacity="0.85" />
+    </svg>
+  );
 }
 
-const INITIAL_DEVICES: DeviceData[] = [
-  {
-    id: 'Quantum-04', name: 'Quantum-04', status: 'online', statusLabel: 'Online',
-    rows: [['Drive lock', '42.577 MHz'], ['Fridge', '12.4 mK']],
-    bench: 'Bench 2 · open slots today',
-    slots: [
-      { time: '10:00', state: 'taken' }, { time: '11:00', state: 'taken' },
-      { time: '13:00', state: 'open' }, { time: '14:00', state: 'mine' },
-      { time: '15:00', state: 'open' }, { time: '16:00', state: 'open' },
-    ],
-  },
-  {
-    id: 'Quantum-01', name: 'Quantum-01', status: 'busy', statusLabel: 'In use',
-    rows: [['Drive lock', '42.580 MHz'], ['Fridge', '12.6 mK']],
-    bench: 'Bench 1 · next open 17:00',
-    slots: [
-      { time: '13:00', state: 'taken' }, { time: '14:00', state: 'taken' },
-      { time: '15:00', state: 'taken' }, { time: '16:00', state: 'taken' },
-      { time: '17:00', state: 'open' },
-    ],
-  },
-  {
-    id: 'Quantum-06', name: 'Quantum-06', status: 'cooling', statusLabel: 'Cooling',
-    rows: [['Fridge', '184 mK ↓'], ['Ready in', '~38 min']],
-    bench: 'Bench 3 · cooldown in progress',
-    slots: [
-      { time: '15:00', state: 'open' }, { time: '16:00', state: 'open' }, { time: '17:00', state: 'open' },
-    ],
-  },
-  {
-    id: 'Simulator', name: 'Simulator', status: 'online', statusLabel: 'Always on',
-    rows: [['Backend', 'noise-model v3'], ['Queue', 'none']],
-    bench: 'No booking required · practice freely',
-    slots: [{ time: 'Launch now', state: 'open' }],
-  },
+type SlotState = 'taken' | 'mine' | 'open';
+
+interface Slot { time: string; state: SlotState; }
+
+const INITIAL_SLOTS: Slot[] = [
+  { time: '09:00', state: 'taken' },
+  { time: '10:00', state: 'taken' },
+  { time: '11:00', state: 'open' },
+  { time: '13:00', state: 'open' },
+  { time: '14:00', state: 'mine' },
+  { time: '15:00', state: 'open' },
+  { time: '16:00', state: 'open' },
 ];
 
 export function Dashboard({ isActive, profile, onNavigate }: Props) {
-  const [devices, setDevices] = useState(INITIAL_DEVICES);
-  const [selectedId, setSelectedId] = useState('Quantum-04');
+  const [slots, setSlots] = useState<Slot[]>(INITIAL_SLOTS);
 
-  const selectSlot = (devId: string, slotTime: string) => {
-    setDevices(prev => prev.map(d => {
-      if (d.id === devId) {
-        return { ...d, slots: d.slots.map(s => ({ ...s, state: s.state === 'mine' ? 'open' : s.state, ...(s.time === slotTime && s.state !== 'taken' ? { state: 'mine' as const } : {}) })) };
-      }
-      return d;
-    }));
-    setSelectedId(devId);
+  const selectSlot = (time: string) => {
+    setSlots(prev => prev.map(s => ({
+      ...s,
+      state: s.state === 'taken' ? 'taken' : s.time === time ? 'mine' : s.state === 'mine' ? 'open' : s.state,
+    })));
   };
+
+  const openCount = slots.filter(s => s.state === 'open').length;
 
   return (
     <section className={`screen${isActive ? ' active' : ''}`} data-screen="dashboard" data-temp="cool2" data-knob="66">
@@ -94,37 +90,41 @@ export function Dashboard({ isActive, profile, onNavigate }: Props) {
             <div className="dash">
               <div>
                 <div className="panel-h">
-                  <span className="pt">Lab fleet — quantum devices</span>
-                  <span className="pa">6 units · 12.4 mK base</span>
+                  <span className="pt">Shared instrument — Earth's-field NMR</span>
+                  <span className="pa">1 spectrometer · Bench 1, Room 114</span>
                 </div>
                 <div className="devices">
-                  {devices.map(d => (
-                    <div key={d.id} className={`device${d.id === selectedId ? ' sel' : ''}`} onClick={() => setSelectedId(d.id)}>
-                      <div className="dh">
-                        <span className="dn">{d.name}</span>
-                        <span className={`dstat ${d.status}`}>
-                          <span className={`sdot${d.status === 'online' ? ' ok' : d.status === 'cooling' ? ' cyan pulse' : ' idle'}`} />
-                          {d.statusLabel}
-                        </span>
+                  <div className="device sel spectro">
+                    <div className="spectro-top">
+                      <div className="spectro-id">
+                        <div className="dn">EFNMR-01</div>
+                        <div className="spectro-sub">Arduino spectrometer · ~US$200 build</div>
                       </div>
-                      {d.rows.map(([k, v]) => (
-                        <div key={k} className="drow"><span className="dk">{k}</span><span>{v}</span></div>
-                      ))}
-                      <div className="dimg" />
-                      <div className="meta" style={{ fontSize: 10 }}>{d.bench}</div>
-                      <div className="slots">
-                        {d.slots.map(s => (
-                          <span
-                            key={s.time}
-                            className={`slot${s.state === 'taken' ? ' taken' : s.state === 'mine' ? ' mine' : ''}`}
-                            onClick={e => { e.stopPropagation(); if (s.state !== 'taken') selectSlot(d.id, s.time); }}
-                          >
-                            {s.time}
-                          </span>
-                        ))}
-                      </div>
+                      <span className="dstat online"><span className="sdot ok" />Online · idle</span>
                     </div>
-                  ))}
+                    <SpectroFid />
+                    <div className="spectro-specs">
+                      <div className="sp"><span className="spk">Larmor frequency</span><span className="spv">2083 Hz</span></div>
+                      <div className="sp"><span className="spk">Polarization field</span><span className="spv">10.5 mT</span></div>
+                      <div className="sp"><span className="spk">Sample</span><span className="spv">H₂O · 0.55 L</span></div>
+                      <div className="sp"><span className="spk">Controller</span><span className="spv">Arduino · USB</span></div>
+                    </div>
+                    <div className="slot-head">
+                      <span className="slh-t">Book a 1-hour slot — today</span>
+                      <span className="slh-m">{openCount} of {slots.length} open</span>
+                    </div>
+                    <div className="slots">
+                      {slots.map(s => (
+                        <span
+                          key={s.time}
+                          className={`slot${s.state === 'taken' ? ' taken' : s.state === 'mine' ? ' mine' : ''}`}
+                          onClick={() => { if (s.state !== 'taken') selectSlot(s.time); }}
+                        >
+                          {s.time}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
                 </div>
 
                 <div className="panel-h"><span className="pt">{profile.context.eyebrow}</span></div>
@@ -144,11 +144,11 @@ export function Dashboard({ isActive, profile, onNavigate }: Props) {
                   <div className="panel-h"><span className="pt">Your bookings</span></div>
                   <div className="booking next">
                     <span className="badge-next">Next up</span>
-                    <span className="bt">Quantum-04 · Bench 2</span>
+                    <span className="bt">EFNMR-01 · Bench 1</span>
                     <span className="bm">Today · 14:00 – 15:00 · 52 min</span>
                   </div>
                   <div className="booking">
-                    <span className="bt">Quantum-04 · Bench 2</span>
+                    <span className="bt">EFNMR-01 · Bench 1</span>
                     <span className="bm">Thu · 14:00 – 15:00</span>
                   </div>
                   <button className="btn btn-primary btn-block mt16" onClick={() => onNavigate('connect')}>

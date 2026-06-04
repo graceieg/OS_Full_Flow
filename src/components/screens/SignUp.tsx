@@ -1,12 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
 import type { ScreenId, Role } from '../../types';
 import { KatmaiLogo } from '../KatmaiLogo';
+import { supabase } from '../../lib/supabase';
 
 interface Props {
   isActive: boolean;
   role: Role;
   onNavigate: (s: ScreenId) => void;
   onRoleChange: (r: Role) => void;
+  onPendingEmail: (email: string) => void;
 }
 
 function BrandWave() {
@@ -43,12 +45,35 @@ function BrandWave() {
   );
 }
 
-export function SignUp({ isActive, role, onNavigate, onRoleChange }: Props) {
+export function SignUp({ isActive, role, onNavigate, onRoleChange, onPendingEmail }: Props) {
   const [selRole, setSelRole] = useState<Role>(role);
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName]   = useState('');
+  const [email, setEmail]         = useState('');
+  const [password, setPassword]   = useState('');
+  const [error, setError]         = useState('');
+  const [loading, setLoading]     = useState(false);
 
   const handleRole = (r: Role) => {
     setSelRole(r);
     onRoleChange(r);
+  };
+
+  const handleSubmit = async () => {
+    setError('');
+    if (!email || !password) { setError('Email and password are required.'); return; }
+    setLoading(true);
+    const { error: err } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { first_name: firstName, last_name: lastName, role: selRole },
+      },
+    });
+    setLoading(false);
+    if (err) { setError(err.message); return; }
+    onPendingEmail(email);
+    onNavigate('verify');
   };
 
   return (
@@ -67,16 +92,16 @@ export function SignUp({ isActive, role, onNavigate, onRoleChange }: Props) {
               Katmai Computing
             </div>
             <div className="bhero">
-              <div className="eyebrow">Quantum you can hold</div>
-              <h2>Run a real <em>quantum experiment</em> by Friday.</h2>
-              <p>Create an account to reserve a quantum device, follow guided courses, and fire your first pulse sequence — no cleanroom required.</p>
+              <div className="eyebrow">NMR in the Earth's field</div>
+              <h2>Record a real <em>free-induction decay</em> by Friday.</h2>
+              <p>Create an account to book the shared NMR spectrometer, follow guided pulse-sequence labs, and watch protons precess — no superconducting magnet required.</p>
               <BrandWave />
               <div className="bstats">
-                <div className="bstat"><div className="n">42.577<span style={{ fontSize: 14, color: 'var(--dim)' }}> MHz</span></div><div className="l">Drive lock</div></div>
-                <div className="bstat"><div className="n">12.4<span style={{ fontSize: 14, color: 'var(--dim)' }}> mK</span></div><div className="l">Fridge base</div></div>
-                <div className="bstat"><div className="n">6<span style={{ fontSize: 14, color: 'var(--dim)' }}> units</span></div><div className="l">Lab fleet</div></div>
+                <div className="bstat"><div className="n">2083<span style={{ fontSize: 14, color: 'var(--dim)' }}> Hz</span></div><div className="l">Larmor frequency</div></div>
+                <div className="bstat"><div className="n">10.5<span style={{ fontSize: 14, color: 'var(--dim)' }}> mT</span></div><div className="l">Polarization field</div></div>
+                <div className="bstat"><div className="n">H₂O</div><div className="l">Water sample</div></div>
               </div>
-              <div className="seed-chip"><span className="sc-dot" />Qubit lineage — <b>controlled nuclear spin</b>, after Earth's-field NMR</div>
+              <div className="seed-chip"><span className="sc-dot" />Built on an <b>Arduino spectrometer</b> — proton spins at audio frequency</div>
             </div>
           </div>
 
@@ -84,8 +109,10 @@ export function SignUp({ isActive, role, onNavigate, onRoleChange }: Props) {
             <div className="formwrap">
               <div className="fh">
                 <h1 className="title">Create your account</h1>
-                <p>Start with a simulator instantly. Book hardware once you're verified.</p>
+                <p>Practice on the FID simulator instantly. Book the spectrometer once you're verified.</p>
               </div>
+
+              {error && <div className="form-error">{error}</div>}
 
               <button className="btn btn-ghost btn-block" onClick={() => onNavigate('verify')}>
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M4 6h16M4 6l8 7 8-7M4 6v12h16V6" /></svg>
@@ -94,19 +121,19 @@ export function SignUp({ isActive, role, onNavigate, onRoleChange }: Props) {
               <div className="divline">or with email</div>
 
               <div className="row2">
-                <div className="field"><label>First name</label><input className="input" placeholder="Ada" /></div>
-                <div className="field"><label>Last name</label><input className="input" placeholder="Lovelace" /></div>
+                <div className="field"><label>First name</label><input className="input" placeholder="Ada" value={firstName} onChange={e => setFirstName(e.target.value)} /></div>
+                <div className="field"><label>Last name</label><input className="input" placeholder="Lovelace" value={lastName} onChange={e => setLastName(e.target.value)} /></div>
               </div>
-              <div className="field"><label>Email</label><input className="input" type="email" placeholder="you@university.edu" /></div>
-              <div className="field"><label>Password</label><input className="input" type="password" placeholder="••••••••••" /></div>
+              <div className="field"><label>Email</label><input className="input" type="email" placeholder="you@university.edu" value={email} onChange={e => setEmail(e.target.value)} /></div>
+              <div className="field"><label>Password</label><input className="input" type="password" placeholder="••••••••••" value={password} onChange={e => setPassword(e.target.value)} /></div>
 
               <div className="field">
                 <label>I am a…</label>
                 <div className="opts">
                   {([
                     ['student', 'Student', 'Enrolled in a course — join with a class code.'],
-                    ['researcher', 'Researcher', 'Independent access to book devices and write recipes.'],
-                    ['educator', 'Educator', 'Set up classes, manage seats, and assign experiments.'],
+                    ['researcher', 'Researcher', 'Independent access — book the spectrometer and write your own pulse sequences.'],
+                    ['educator', 'Educator', 'Set up classes, manage seats, and assign pulse-sequence experiments.'],
                   ] as [Role, string, string][]).map(([r, label, desc]) => (
                     <div key={r} className={`opt${selRole === r ? ' sel' : ''}`} onClick={() => handleRole(r)}>
                       <div className="rk" />
@@ -116,8 +143,8 @@ export function SignUp({ isActive, role, onNavigate, onRoleChange }: Props) {
                 </div>
               </div>
 
-              <button className="btn btn-primary btn-block mt8" onClick={() => onNavigate('verify')}>
-                Create account <span className="arr">→</span>
+              <button className="btn btn-primary btn-block mt8" onClick={handleSubmit} disabled={loading}>
+                {loading ? 'Creating account…' : <span>Create account <span className="arr">→</span></span>}
               </button>
               <div className="foot-note">
                 Already have an account?{' '}

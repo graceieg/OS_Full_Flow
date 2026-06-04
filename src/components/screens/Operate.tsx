@@ -68,11 +68,11 @@ export function Operate({ isActive, onNavigate: _onNavigate }: Props) {
   const alertIsDanger = operateState === 'lock-lost' || operateState === 'mid-run-fail';
   let alertCopy = '';
   if (operateState === 'out-of-band') {
-    alertCopy = '<b>1 parameter outside its safe band</b> · Parameter 4 is below its calibrated window. Run is allowed but readout may not be reliable.';
+    alertCopy = '<b>1 parameter outside its safe band</b> · Parameter 4 is below its calibrated window. Acquire is allowed but readout may not be reliable.';
   } else if (operateState === 'lock-lost') {
-    alertCopy = '<b>Lock lost</b> · The fridge / drive lock dropped while idle. Recalibrate before running — current readouts will be unreliable.';
+    alertCopy = '<b>Field lock lost</b> · The field lock lost — coil may be detuned. Recalibrate before acquiring — current readouts will be unreliable.';
   } else if (operateState === 'mid-run-fail') {
-    alertCopy = '<b>Lock lost mid-run</b> · The lock dropped at shot 37 / 100. Partial data discarded. Re-acquire and re-run.';
+    alertCopy = '<b>Field lock lost mid-run</b> · The lock dropped at shot 37 / 100. Partial data discarded. Re-lock field and retry.';
   }
 
   const alertActions = (): { label: string; primary: boolean }[] => {
@@ -80,16 +80,16 @@ export function Operate({ isActive, onNavigate: _onNavigate }: Props) {
       return [{ label: 'Snap to safe', primary: true }, { label: 'Review', primary: false }];
     }
     if (operateState === 'lock-lost' || operateState === 'mid-run-fail') {
-      return [{ label: 'Re-acquire lock', primary: true }, { label: 'View diagnostics', primary: false }];
+      return [{ label: 'Re-lock field', primary: true }, { label: 'View diagnostics', primary: false }];
     }
     return [];
   };
 
   // Run blocked content
-  const rbTitle = 'Run blocked';
+  const rbTitle = 'Acquire blocked';
   const rbBody  = '<b>Parameter 4</b> ([value]) is below its safe band of [lo]–[hi]. Bring it into the band, or override if you understand the trade-off.';
   const rbActions = [
-    { label: 'Snap to safe & run', primary: true },
+    { label: 'Snap to safe & acquire', primary: true },
     { label: 'Override (type "I understand")', primary: false },
     { label: 'Cancel', primary: false },
   ];
@@ -108,38 +108,38 @@ export function Operate({ isActive, onNavigate: _onNavigate }: Props) {
     rpBody    = 'Translating UI commands into firmware-ready packets and validating round-trip timing.';
     rpActions.push({ label: 'Cancel', primary: false });
   } else if (operateState === 'running') {
-    rpTitle   = 'Running';
+    rpTitle   = 'Acquiring';
     rpCount   = '37 / 100 shots';
     rpFillPct = 37;
     rpBody    = 'Live trace updating on the right. Pause to inspect mid-run; abort discards partial data.';
     rpActions.push({ label: 'Pause', primary: false }, { label: 'Abort run', primary: false });
   } else if (operateState === 'completed') {
-    rpTitle   = 'Run complete';
+    rpTitle   = 'Acquisition complete';
     rpCount   = '100 / 100 shots';
     rpFillPct = 100;
-    rpBody    = 'All readouts within target. Save the run, compare against a previous result, or re-run with a tweaked parameter.';
+    rpBody    = 'All readouts within target. Save the result, compare against a previous result, or acquire again with a tweaked parameter.';
     rpActions.push(
-      { label: 'Save run', primary: true },
-      { label: 'Run again', primary: false },
+      { label: 'Save result', primary: true },
+      { label: 'Acquire again', primary: false },
       { label: 'Compare to previous', primary: false },
     );
   }
 
   // Run button text/state
-  let runBtnLabel = 'Run experiment';
+  let runBtnLabel = 'Acquire';
   if (runDisabled) {
-    runBtnLabel = operateState === 'mid-run-fail' ? 'Re-acquire to retry' : 'Run · locked';
+    runBtnLabel = operateState === 'mid-run-fail' ? 'Re-acquire to retry' : 'Acquire · locked';
   }
 
   // Right column stage cue
-  let stageCueText = 'Step 4 · readout populates after Run';
+  let stageCueText = 'Step 4 · readout populates after Acquire';
   let stageCueIsFailure = false;
   if (operateState === 'running') {
-    stageCueText = 'Running · shot 37 of 100';
+    stageCueText = 'Acquiring · shot 37 of 100';
   } else if (operateState === 'completed') {
-    stageCueText = 'Run complete · readout reflects last shot';
+    stageCueText = 'Acquisition complete · readout reflects last shot';
   } else if (operateState === 'mid-run-fail') {
-    stageCueText = 'Lock lost at shot 37 / 100 — partial data discarded';
+    stageCueText = 'Field lock lost at shot 37 / 100 — partial data discarded';
     stageCueIsFailure = true;
   }
 
@@ -148,17 +148,17 @@ export function Operate({ isActive, onNavigate: _onNavigate }: Props) {
   let acqText  = 'Acquired';
   if (operateState === 'running') { acqClass = 'acq live'; acqText = 'Acquiring'; }
   else if (operateState === 'completed') { acqClass = 'acq complete'; acqText = 'Complete'; }
-  else if (operateState === 'mid-run-fail') { acqClass = 'acq lost'; acqText = 'Lost'; }
+  else if (operateState === 'mid-run-fail') { acqClass = 'acq lost'; acqText = 'Unlocked'; }
 
   // Footer
   let footerMsg = 'Ready — all parameters inside safe bands';
-  if (operateState === 'out-of-band')   footerMsg = '1 parameter outside safe band · review before running';
-  if (operateState === 'run-blocked')   footerMsg = 'Run blocked — out-of-band parameter';
+  if (operateState === 'out-of-band')   footerMsg = '1 parameter outside safe band · review before acquiring';
+  if (operateState === 'run-blocked')   footerMsg = 'Acquire blocked — out-of-band parameter';
   if (operateState === 'arming')        footerMsg = 'Compiling sequence — please wait';
-  if (operateState === 'running')       footerMsg = 'Running shot 37 / 100 · lock stable';
-  if (operateState === 'completed')     footerMsg = 'Run complete — all targets met';
-  if (operateState === 'lock-lost')     footerMsg = 'Lock lost — recalibrate before running';
-  if (operateState === 'mid-run-fail')  footerMsg = 'Lock lost mid-run · re-acquire and re-run';
+  if (operateState === 'running')       footerMsg = 'Acquiring shot 37 / 100 · field locked';
+  if (operateState === 'completed')     footerMsg = 'Acquisition complete — all targets met';
+  if (operateState === 'lock-lost')     footerMsg = 'Field lock lost — recalibrate before acquiring';
+  if (operateState === 'mid-run-fail')  footerMsg = 'Field lock lost mid-run · re-acquire and retry';
 
   // Stat tiles
   type StatTile = {
@@ -171,10 +171,10 @@ export function Operate({ isActive, onNavigate: _onNavigate }: Props) {
   };
 
   const defaultStats: StatTile[] = [
-    { k: '[Metric 1]', v: '[value]', u: '[unit]', targetClass: 'target', targetText: 'target [range]' },
-    { k: '[Metric 2]', v: '[value]', u: '[unit]', targetClass: 'target ok', targetText: 'within target' },
-    { k: '[Metric 3]', v: '[value]', u: '[unit]', targetClass: 'target', targetText: 'typical [range]' },
-    { k: '[Metric 4]', v: '[value]', u: '[unit]', targetClass: 'target', targetText: 'aim [range]' },
+    { k: 'T₂ (ms)',           v: '[value]', u: '[unit]', targetClass: 'target', targetText: 'target [range]' },
+    { k: 'SNR',               v: '[value]', u: '[unit]', targetClass: 'target ok', targetText: 'within target' },
+    { k: 'Larmor freq (Hz)',  v: '[value]', u: '[unit]', targetClass: 'target', targetText: 'typical [range]' },
+    { k: 'Echo count',        v: '[value]', u: '[unit]', targetClass: 'target', targetText: 'aim [range]' },
   ];
 
   const stats: StatTile[] = defaultStats.map((s, i) => {
@@ -230,12 +230,12 @@ export function Operate({ isActive, onNavigate: _onNavigate }: Props) {
           {/* ─── System status strip ─── */}
           <div className="status-strip">
             <div className="item neutral"><span className="dot" /><span className="k">Device</span><span className="v">[id]</span></div>
-            <div className="item info"><span className="dot" /><span className="k">Drive</span><span className="v">[value · unit]</span></div>
-            <div className="item info"><span className="dot" /><span className="k">Fridge</span><span className="v">[value · unit]</span></div>
+            <div className="item info"><span className="dot" /><span className="k">Polarization</span><span className="v">[value · unit]</span></div>
+            <div className="item info"><span className="dot" /><span className="k">Coil resonance</span><span className="v">[value · unit]</span></div>
             <div className={`item${lockDanger ? ' danger' : ''}`}>
               <span className="dot" />
-              <span className="k">Lock</span>
-              <span className="v">{lockDanger ? 'lost' : 'stable'}</span>
+              <span className="k">Field lock</span>
+              <span className="v">{lockDanger ? 'unlocked' : 'locked'}</span>
             </div>
             <div className="item neutral"><span className="dot" /><span className="k">Student</span><span className="v">[name]</span></div>
             <div className="spacer" />
@@ -251,7 +251,7 @@ export function Operate({ isActive, onNavigate: _onNavigate }: Props) {
                   { label: 'Pick recipe',        sub: 'Chose [Experiment]' },
                   { label: 'Calibrate channel',  sub: 'All 4 channels in range' },
                   { label: 'Set parameters',     sub: 'Tune each control inside its safe band' },
-                  { label: 'Run & analyze',      sub: 'Compare readout against targets' },
+                  { label: 'Acquire & analyze',   sub: 'Compare readout against targets' },
                 ].map((step, i) => (
                   <div key={i} className={getStepClass(i)}>
                     <div className="marker"><span>{i + 1}</span></div>
@@ -337,33 +337,33 @@ export function Operate({ isActive, onNavigate: _onNavigate }: Props) {
                   {/* Param 1 — anchor, expanded */}
                   <div className="param is-anchor is-expanded">
                     <div className="param-top">
-                      <div className="param-name">Flip angle</div>
-                      <div className="param-sym">θ</div>
+                      <div className="param-name">Pulse frequency</div>
+                      <div className="param-sym">f₀</div>
                     </div>
-                    <div className="param-val">180<span className="sup">°</span></div>
+                    <div className="param-val">2083 <span className="unit">Hz</span></div>
                     <div className="param-track">
-                      <span className="safe" style={{ left: '44.4%', right: '11.1%' }} />
-                      <span className="fill" style={{ width: '50%' }} />
-                      <span className="knob in-safe" style={{ left: '50%' }} />
+                      <span className="safe" style={{ left: '35%', right: '22%' }} />
+                      <span className="fill" style={{ width: '41.5%' }} />
+                      <span className="knob in-safe" style={{ left: '41.5%' }} />
                     </div>
-                    <div className="param-scale"><span>0°</span><span>360°</span></div>
+                    <div className="param-scale"><span>2000 Hz</span><span>2200 Hz</span></div>
                     <div className="param-band-readout">
-                      <span className="safe-tag">safe band <span className="nums">160°–320°</span></span>
-                      <span className="state">inside · 180°</span>
+                      <span className="safe-tag">safe band <span className="nums">2070–2096 Hz</span></span>
+                      <span className="state">inside · 2083 Hz</span>
                     </div>
                     <div className="param-toggle">Hide explanation</div>
                     <div className="param-hint">
-                      [Plain-English description of what this parameter does — for review. The shaded range is the calibrated operating window; outside it the experiment is no longer reliable.]
+                      Must be near the proton Larmor frequency in Earth's field (~2083 Hz). Small deviations reduce signal amplitude rapidly.
                     </div>
                   </div>
 
                   {/* Param 2 */}
                   <div className="param">
                     <div className="param-top">
-                      <div className="param-name">[Parameter 2]</div>
-                      <div className="param-sym">[symbol]</div>
+                      <div className="param-name">Pulse duration</div>
+                      <div className="param-sym">τ_p</div>
                     </div>
-                    <div className="param-val">[value] <span className="unit">[unit]</span></div>
+                    <div className="param-val">[value] <span className="unit">µs</span></div>
                     <div className="param-track">
                       <span className="safe" style={{ left: '12%', right: '64%' }} />
                       <span className="fill" style={{ width: '20%' }} />
@@ -375,16 +375,16 @@ export function Operate({ isActive, onNavigate: _onNavigate }: Props) {
                       <span className="state">inside · [value]</span>
                     </div>
                     <div className="param-toggle">Show explanation</div>
-                    <div className="param-hint">[Plain-English description goes here.]</div>
+                    <div className="param-hint">Sets the flip angle. A 90° pulse tips magnetization into the transverse plane; a 180° pulse inverts it.</div>
                   </div>
 
                   {/* Param 3 */}
                   <div className="param">
                     <div className="param-top">
-                      <div className="param-name">[Parameter 3]</div>
-                      <div className="param-sym">[symbol]</div>
+                      <div className="param-name">Echo spacing</div>
+                      <div className="param-sym">τ</div>
                     </div>
-                    <div className="param-val">[value] <span className="unit">[unit]</span></div>
+                    <div className="param-val">[value] <span className="unit">ms</span></div>
                     <div className="param-track">
                       <span className="safe" style={{ left: '50%', right: '25%' }} />
                       <span className="fill" style={{ width: '67%' }} />
@@ -396,19 +396,19 @@ export function Operate({ isActive, onNavigate: _onNavigate }: Props) {
                       <span className="state">inside · [value]</span>
                     </div>
                     <div className="param-toggle">Show explanation</div>
-                    <div className="param-hint">[Plain-English description goes here.]</div>
+                    <div className="param-hint">Time between π pulses in the CPMG train. Shorter spacing reduces T₂ decay losses.</div>
                   </div>
 
                   {/* Param 4 — state-driven */}
                   <div className={`param${isParam4Error ? ' is-error' : ''}`}>
                     <div className="param-top">
                       <div className="param-name">
-                        [Parameter 4]
+                        Polarization time
                         <span className="error-chip">Out of safe band</span>
                       </div>
-                      <div className="param-sym">[symbol]</div>
+                      <div className="param-sym">t_pol</div>
                     </div>
-                    <div className="param-val">[value] <span className="unit">[unit]</span></div>
+                    <div className="param-val">[value] <span className="unit">s</span></div>
                     <div className="param-track">
                       <span className="safe" style={{ left: '46%', right: '46%' }} />
                       <span className="fill" style={{ width: p4InBand ? '50%' : '36%' }} />
@@ -422,7 +422,7 @@ export function Operate({ isActive, onNavigate: _onNavigate }: Props) {
                       </span>
                     </div>
                     <div className="param-toggle">Show explanation</div>
-                    <div className="param-hint">[Plain-English description goes here.]</div>
+                    <div className="param-hint">How long the polarization coil runs before acquisition. Longer times increase SNR but slow the experiment.</div>
                     <div className="param-recovery">
                       <span className="lbl">Recover:</span>
                       <button className="r-btn primary">Snap to nearest safe value</button>
@@ -439,8 +439,8 @@ export function Operate({ isActive, onNavigate: _onNavigate }: Props) {
                 {!isRunBlocked && !isProgress && (
                   <>
                     <div>
-                      <div className="ttl">Run experiment</div>
-                      <div className="step-link"><span className="arrow">→</span> advances to <b>Step 4 · Run &amp; analyze</b></div>
+                      <div className="ttl">Acquire</div>
+                      <div className="step-link"><span className="arrow">→</span> advances to <b>Step 4 · Acquire &amp; analyze</b></div>
                     </div>
                     <div className="spacer" />
                     <div className="shots">
@@ -533,7 +533,7 @@ export function Operate({ isActive, onNavigate: _onNavigate }: Props) {
                   </div>
                 )}
                 <div className={`scope-recovery${operateState === 'mid-run-fail' ? ' is-visible' : ''}`}>
-                  <button className="r-btn primary">Re-acquire lock</button>
+                  <button className="r-btn primary">Re-lock field</button>
                   <button className="r-btn">Abort run</button>
                   <button className="r-btn">View diagnostics</button>
                 </div>
@@ -581,7 +581,7 @@ export function Operate({ isActive, onNavigate: _onNavigate }: Props) {
             <span className="label">Status</span>
             <span>{footerMsg}</span>
             <div className="spacer" />
-            <span className="keys">Run <kbd>↵</kbd> &nbsp; Reset <kbd>R</kbd></span>
+            <span className="keys">Acquire <kbd>↵</kbd> &nbsp; Reset <kbd>R</kbd></span>
           </div>
         </div>
 
