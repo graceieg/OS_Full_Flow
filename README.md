@@ -1,73 +1,94 @@
-# React + TypeScript + Vite
+# OS Full Flow - Quantum Lab Education Platform
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern web application for quantum lab education, designed to facilitate remote access to quantum computing hardware for students, researchers, and educators.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Multi-Role Authentication System**: Support for three distinct user types:
+  - **Students**: Book lab slots, complete assigned experiments, and track progress
+  - **Researchers**: Full hardware access with priority queue, recipe authoring, and extended booking slots
+  - **Educators**: Manage class rosters, assign experiments, and reserve device pools for teaching sessions
 
-## React Compiler
+- **Complete User Flow**: From sign-up through verification, onboarding, dashboard, and hardware connection
+- **Role-Specific Dashboards**: Customized interfaces and features for each user type
+- **Quantum Lab Integration**: Real quantum hardware access with pulse sequence experiments
+- **Class Management**: Educators can create class codes, manage seats, and assign experiments
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Getting Started
 
-## Expanding the ESLint configuration
+### Prerequisites
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- Node.js (v18 or higher)
+- npm or yarn
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### Installation
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+1. Install dependencies:
+```bash
+npm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+2. Start the development server:
+```bash
+npm run dev
 ```
+
+The application will be available at `http://localhost:5173/`
+
+### Available Scripts
+
+- `npm run dev` - Start the development server
+- `npm run build` - Build for production
+- `npm run lint` - Run ESLint
+- `npm run preview` - Preview the production build
+
+## Technology Stack
+
+- **React 19** - UI framework
+- **TypeScript** - Type safety
+- **Vite** - Build tool and dev server
+- **CSS Modules** - Component styling
+
+## Project Structure
+
+```
+src/
+├── components/
+│   ├── Navigator.tsx          # Navigation component
+│   ├── KatmaiLogo.tsx         # Logo component
+│   └── screens/              # Screen components
+│       ├── SignUp.tsx         # Sign-up screen
+│       ├── SignIn.tsx         # Sign-in screen
+│       ├── Verify.tsx         # Email verification
+│       ├── Onboarding.tsx     # User onboarding flow
+│       ├── Dashboard.tsx      # Main dashboard
+│       └── Connect.tsx        # Hardware connection
+├── data.ts                    # Role profiles and configuration
+├── types.ts                   # TypeScript type definitions
+├── App.tsx                    # Main application component
+└── main.tsx                   # Application entry point
+```
+
+## User Roles
+
+### Student
+- Book open slots on shared lab devices
+- Complete assigned experiments (e.g., spin-echo T₂* measurements)
+- Track progress through courses and modules
+- Join classes via educator-provided codes
+
+### Researcher
+- Full hardware booking with priority queue
+- Author and version custom pulse recipes
+- Extended time slots for experiments
+- No class code required
+
+### Educator
+- Create and manage class codes
+- Assign experiments to students
+- Reserve device pools for class sessions
+- Track student progress and completion rates
+
+## Development
+
+This project uses Vite for fast development with hot module replacement. TypeScript provides type safety throughout the application.
