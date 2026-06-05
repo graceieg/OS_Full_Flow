@@ -33,7 +33,7 @@ function KatmaiUSB({ connected }: { connected: boolean }) {
         <rect x="162" y="85" width="3" height="7" /><rect x="168" y="85" width="3" height="7" />
       </g>
       <circle cx="192" cy="56" r="3.4" fill={connected ? '#52A543' : 'var(--faint)'} />
-      <text x="151" y="120" fontFamily="'JetBrains Mono',monospace" fontSize="9" fill="var(--faint)" textAnchor="middle">ATmega328 · 16 MHz</text>
+      <text x="151" y="120" fontFamily="'JetBrains Mono',monospace" fontSize="9" fill="var(--faint)" textAnchor="middle">CatMay circuit board</text>
     </svg>
   );
 }
@@ -106,11 +106,11 @@ export function Connect({ isActive, profile, onNavigate }: Props) {
             </div>
             <div className="eyebrow mt32">Bench check-in</div>
             <h1 className="title" style={{ fontSize: 32 }}>Connect to EFNMR-01.</h1>
-            <p className="lede mt8" style={{ maxWidth: '46ch' }}>Your booking is active. Plug the spectrometer's Katmai controller into your laptop over USB to claim the instrument for your session.</p>
+            <p className="lede mt8" style={{ maxWidth: '46ch' }}>Your booking is active. Plug the CatMay circuit board into your laptop over USB to claim the instrument for your session.</p>
 
             <div className="booked-card">
               <div className="bcrow"><span className="bck">DEVICE</span><span className="bcv accent">EFNMR-01</span></div>
-              <div className="bcrow"><span className="bck">CONTROLLER</span><span className="bcv">Katmai 01</span></div>
+              <div className="bcrow"><span className="bck">CONTROLLER</span><span className="bcv">CatMay circuit board</span></div>
               <div className="bcrow"><span className="bck">BENCH</span><span className="bcv">1 · Room 114</span></div>
               <div className="bcrow"><span className="bck">SLOT</span><span className="bcv">14:00 – 15:00 · 52 min left</span></div>
               <div className="bcrow"><span className="bck">OPERATOR</span><span className="bcv">{profile.operator}</span></div>
