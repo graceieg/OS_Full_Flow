@@ -569,7 +569,7 @@ export function Landing({ isActive, onNavigate }: LandingProps) {
             <li><a href="#l-faq">FAQ</a></li>
           </ul>
 
-          <button className="l-nav-cta" onClick={() => onNavigate('signup')}>
+          <button className="l-nav-cta">
             <span className="l-pulse-dot" />
             Join Waitlist
           </button>
@@ -1327,7 +1327,7 @@ export function Landing({ isActive, onNavigate }: LandingProps) {
               placeholder="you@university.edu"
               aria-label="Email address"
             />
-            <button className="l-btn-primary" onClick={() => onNavigate('signup')} style={{ padding: '10px 20px', fontSize: '0.85rem', borderRadius: 10 }}>
+            <button className="l-btn-primary" style={{ padding: '10px 20px', fontSize: '0.85rem', borderRadius: 10 }}>
               Join Waitlist
             </button>
           </div>
