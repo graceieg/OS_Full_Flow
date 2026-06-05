@@ -28,8 +28,9 @@ export default function App() {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
         setScreen(prev => {
-          if (prev === 'landing') return prev; // stay on landing — let user click through
-          return prev === 'verify' || prev === 'signup' ? 'onboarding' : 'dashboard';
+          // Never auto-skip landing, signup, or verify — user must navigate these themselves
+          if (prev === 'landing' || prev === 'signup' || prev === 'verify') return prev;
+          return 'dashboard';
         });
       }
     });
@@ -37,8 +38,10 @@ export default function App() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session) {
         setScreen(prev => {
+          // Never auto-skip landing, signup, or verify
+          if (prev === 'landing' || prev === 'signup' || prev === 'verify') return prev;
+          return 'dashboard';
           if (prev === 'landing') return prev; // stay on landing
-          return prev === 'verify' || prev === 'signup' ? 'onboarding' : 'dashboard';
         });
       }
       if (event === 'SIGNED_OUT') {
