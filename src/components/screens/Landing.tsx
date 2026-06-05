@@ -571,7 +571,7 @@ export function Landing({ isActive, onNavigate }: LandingProps) {
 
           <button className="l-nav-cta" onClick={() => onNavigate('signup')}>
             <span className="l-pulse-dot" />
-            Join Waitlist
+            Demo Now
           </button>
         </nav>
 
@@ -1328,7 +1328,7 @@ export function Landing({ isActive, onNavigate }: LandingProps) {
               aria-label="Email address"
             />
             <button className="l-btn-primary" onClick={() => onNavigate('signup')} style={{ padding: '10px 20px', fontSize: '0.85rem', borderRadius: 10 }}>
-              Join Waitlist
+              Demo Now
             </button>
           </div>
         </section>
