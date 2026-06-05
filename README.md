@@ -28,7 +28,22 @@ A modern web application for quantum lab education, designed to facilitate remot
 npm install
 ```
 
-2. Start the development server:
+2. Set up environment variables:
+
+Create a `.env.local` file in the project root:
+```bash
+touch .env.local
+```
+
+Add your Supabase credentials (find these in your Supabase dashboard under **Settings → API**):
+```
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key
+```
+
+> ⚠️ Never commit `.env.local` to git. It is already listed in `.gitignore`.
+
+3. Start the development server:
 ```bash
 npm run dev
 ```
