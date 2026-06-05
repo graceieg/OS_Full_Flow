@@ -471,6 +471,22 @@
   border: 1px solid rgba(255,255,255,0.05);
   margin-top: 10px;
 }
+
+/* Wrap track + invisible range input on top */
+.operate-screen .param-track-wrap {
+  position: relative;
+}
+.operate-screen .param-range-input {
+  position: absolute;
+  inset: -6px 0;
+  width: 100%;
+  opacity: 0;
+  cursor: pointer;
+  height: 20px;
+  margin: 0;
+  z-index: 2;
+}
+.operate-screen .param-range-input:disabled { cursor: not-allowed; }
 .operate-screen .param-track .safe {
   position: absolute; top: -1px; bottom: -1px;
   background: rgba(82,165,67,0.22);
@@ -1192,3 +1208,44 @@
   color: #1f0e07;
   font-weight: 600;
 }
+
+/* ─── Recipe picker dropdown ─── */
+.operate-screen .recipe-pick {
+  position: relative;
+  user-select: none;
+}
+.operate-screen .recipe-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 280px;
+  background: var(--card-bg);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-card);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+  z-index: 50;
+  overflow: hidden;
+}
+.operate-screen .recipe-opt {
+  padding: 12px 16px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--line);
+  transition: background .15s;
+}
+.operate-screen .recipe-opt:last-child { border-bottom: none; }
+.operate-screen .recipe-opt:hover { background: rgba(255,255,255,0.04); }
+.operate-screen .recipe-opt.sel { background: rgba(229,156,59,0.08); }
+.operate-screen .ro-label { font-size: 13px; color: var(--fg); font-weight: 500; margin-bottom: 3px; }
+.operate-screen .ro-desc  { font-family: var(--font-mono); font-size: 11px; color: var(--fg-3); }
+
+/* ─── Shots input ─── */
+.operate-screen .shots { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--fg-2); }
+.operate-screen .shots-input {
+  background: var(--card-bg) !important;
+  border: 1px solid var(--line-strong) !important;
+  border-radius: var(--r-input) !important;
+  color: var(--fg) !important;
+  padding: 5px 8px !important;
+}
+.operate-screen .shots-input::-webkit-inner-spin-button,
+.operate-screen .shots-input::-webkit-outer-spin-button { opacity: 0.5; }
