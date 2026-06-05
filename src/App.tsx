@@ -41,6 +41,7 @@ export default function App() {
           // Never auto-skip landing, signup, or verify
           if (prev === 'landing' || prev === 'signup' || prev === 'verify') return prev;
           return 'dashboard';
+          if (prev === 'landing') return prev; // stay on landing
         });
       }
       if (event === 'SIGNED_OUT') {
