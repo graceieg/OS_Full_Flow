@@ -101,7 +101,7 @@ export function SignUp({ isActive, role, onNavigate, onRoleChange, onPendingEmai
                 <div className="bstat"><div className="n">10.5<span style={{ fontSize: 14, color: 'var(--dim)' }}> mT</span></div><div className="l">Polarization field</div></div>
                 <div className="bstat"><div className="n">H₂O</div><div className="l">Water sample</div></div>
               </div>
-              <div className="seed-chip"><span className="sc-dot" />Built on an <b>Arduino spectrometer</b> — proton spins at audio frequency</div>
+              <div className="seed-chip"><span className="sc-dot" />Built on the <b>Katmai 01</b> — real NMR in a handheld instrument</div>
             </div>
           </div>
 
