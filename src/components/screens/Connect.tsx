@@ -11,13 +11,13 @@ interface Props {
 type HsState = 'idle' | 'active' | 'done';
 
 const HS_STEPS = [
-  { label: 'Detect Arduino over USB', finalValue: '✓ /dev/cu.usbserial-1420' },
+  { label: 'Detect Katmai over USB', finalValue: '✓ /dev/cu.usbserial-1420' },
   { label: 'Sync Larmor frequency 2083 Hz', finalValue: '✓ 2083 Hz' },
   { label: 'Polarization coil check 10.5 mT', finalValue: '✓ 10.5 mT · 13.4 A' },
   { label: 'Ready for handoff', finalValue: '✓ ready' },
 ];
 
-function ArduinoUSB({ connected }: { connected: boolean }) {
+function KatmaiUSB({ connected }: { connected: boolean }) {
   return (
     <svg viewBox="0 0 220 132" aria-hidden="true">
       <path d="M8 66 H70" stroke="var(--faint)" strokeWidth="3" strokeLinecap="round" />
@@ -33,7 +33,7 @@ function ArduinoUSB({ connected }: { connected: boolean }) {
         <rect x="162" y="85" width="3" height="7" /><rect x="168" y="85" width="3" height="7" />
       </g>
       <circle cx="192" cy="56" r="3.4" fill={connected ? '#52A543' : 'var(--faint)'} />
-      <text x="151" y="120" fontFamily="'JetBrains Mono',monospace" fontSize="9" fill="var(--faint)" textAnchor="middle">ATmega328 · 16 MHz</text>
+      <text x="151" y="120" fontFamily="'JetBrains Mono',monospace" fontSize="9" fill="var(--faint)" textAnchor="middle">CatMay circuit board</text>
     </svg>
   );
 }
@@ -56,13 +56,13 @@ export function Connect({ isActive, profile, onNavigate }: Props) {
 
     const delays = [0, 600, 1200, 1800];
     const msgs = [
-      'detecting Arduino over USB…',
+      'detecting Katmai over USB…',
       'syncing Larmor frequency 2083 Hz…',
       'checking polarization coil 10.5 mT…',
       'ready for handoff…',
     ];
     const dones = [
-      'Arduino detected · /dev/cu.usbserial-1420 ✓',
+      'Katmai detected · /dev/cu.usbserial-1420 ✓',
       'Larmor synced · 2083 Hz ✓',
       'coil ok · 10.5 mT · 13.4 A ✓',
       'ready ✓',
@@ -106,11 +106,11 @@ export function Connect({ isActive, profile, onNavigate }: Props) {
             </div>
             <div className="eyebrow mt32">Bench check-in</div>
             <h1 className="title" style={{ fontSize: 32 }}>Connect to EFNMR-01.</h1>
-            <p className="lede mt8" style={{ maxWidth: '46ch' }}>Your booking is active. Plug the spectrometer's Arduino into your laptop over USB to claim the instrument for your session.</p>
+            <p className="lede mt8" style={{ maxWidth: '46ch' }}>Your booking is active. Plug the CatMay circuit board into your laptop over USB to claim the instrument for your session.</p>
 
             <div className="booked-card">
               <div className="bcrow"><span className="bck">DEVICE</span><span className="bcv accent">EFNMR-01</span></div>
-              <div className="bcrow"><span className="bck">CONTROLLER</span><span className="bcv">Arduino Duemilanove</span></div>
+              <div className="bcrow"><span className="bck">CONTROLLER</span><span className="bcv">CatMay circuit board</span></div>
               <div className="bcrow"><span className="bck">BENCH</span><span className="bcv">1 · Room 114</span></div>
               <div className="bcrow"><span className="bck">SLOT</span><span className="bcv">14:00 – 15:00 · 52 min left</span></div>
               <div className="bcrow"><span className="bck">OPERATOR</span><span className="bcv">{profile.operator}</span></div>
@@ -130,7 +130,7 @@ export function Connect({ isActive, profile, onNavigate }: Props) {
           <div className="cright">
             <div style={{ maxWidth: 360, margin: '0 auto', width: '100%' }}>
               <div className="usb-box">
-                <ArduinoUSB connected={showEnter} />
+                <KatmaiUSB connected={showEnter} />
               </div>
               <div className="meta" style={{ textAlign: 'center' }}>USB serial · 9600 baud · detected port</div>
               <div className="serial-entry">

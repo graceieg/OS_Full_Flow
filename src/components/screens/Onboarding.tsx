@@ -200,7 +200,7 @@ function PhysicsSheet({ onClose, onComplete }: { onClose: () => void; onComplete
         <div className="heritage">
           <div className="h-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M4 5h11a2 2 0 0 1 2 2v13a2 2 0 0 0-2-2H4z" /><path d="M20 5h-3a2 2 0 0 0-2 2v13a2 2 0 0 1 2-2h3z" /></svg></div>
           <div className="h-body">
-            <b>The instrument.</b> An Arduino microcontroller acts as pulse programmer, audio-frequency synthesizer and digitizer, driving one transmit/receive coil and a separate polarization coil around a 0.55 L water sample. No superconducting magnet — the whole spectrometer can be built for about US$200.
+            <b>The instrument.</b> The Katmai 01 acts as pulse programmer, RF synthesizer, and digitizer — driving the transmit/receive coil and polarization coil from an ARM Cortex-A78 core running KatmaiOS. No superconducting magnet or cryogens required.
             <span className="cite">Reference · C A Michal, "A low-cost spectrometer for NMR measurements in the Earth's magnetic field," Meas. Sci. Technol. 21 (2010) 105902.</span>
           </div>
         </div>

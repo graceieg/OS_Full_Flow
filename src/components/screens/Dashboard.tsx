@@ -98,7 +98,7 @@ export function Dashboard({ isActive, profile, onNavigate }: Props) {
                     <div className="spectro-top">
                       <div className="spectro-id">
                         <div className="dn">EFNMR-01</div>
-                        <div className="spectro-sub">Arduino spectrometer · ~US$200 build</div>
+                        <div className="spectro-sub">Katmai 01 · portable NMR instrument</div>
                       </div>
                       <span className="dstat online"><span className="sdot ok" />Online · idle</span>
                     </div>
@@ -107,7 +107,7 @@ export function Dashboard({ isActive, profile, onNavigate }: Props) {
                       <div className="sp"><span className="spk">Larmor frequency</span><span className="spv">2083 Hz</span></div>
                       <div className="sp"><span className="spk">Polarization field</span><span className="spv">10.5 mT</span></div>
                       <div className="sp"><span className="spk">Sample</span><span className="spv">H₂O · 0.55 L</span></div>
-                      <div className="sp"><span className="spk">Controller</span><span className="spv">Arduino · USB</span></div>
+                      <div className="sp"><span className="spk">Controller</span><span className="spv">Katmai 01 · Wi-Fi 6E</span></div>
                     </div>
                     <div className="slot-head">
                       <span className="slh-t">Book a 1-hour slot — today</span>
