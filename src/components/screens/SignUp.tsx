@@ -114,7 +114,7 @@ export function SignUp({ isActive, role, onNavigate, onRoleChange, onPendingEmai
 
               {error && <div className="form-error">{error}</div>}
 
-              <button className="btn btn-ghost btn-block" onClick={() => onNavigate('verify')}>
+              <button className="btn btn-ghost btn-block" disabled>
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><path d="M4 6h16M4 6l8 7 8-7M4 6v12h16V6" /></svg>
                 Continue with University SSO
               </button>
