@@ -93,7 +93,7 @@ h1.title, .title { font-family: var(--display); font-weight: var(--display-weigh
 .brandside { padding: 56px 56px 48px; display: flex; flex-direction: column; border-right: 1px solid var(--border); position: relative; overflow: hidden; }
 .brandside .bmark { display: flex; align-items: center; gap: 10px; font-family: var(--display); font-weight: 500; font-size: 19px; color: var(--text); flex-shrink: 0; }
 .brandside .bmark svg { color: var(--accent); }
-.brandside .bhero { margin-top: auto; flex-shrink: 0; }
+.brandside .bhero { margin-top: 60px; flex-shrink: 0; }
 .brandside .bhero h2 { font-family: var(--display); font-weight: var(--display-weight); font-style: var(--display-style); font-size: clamp(34px, 4vw, 54px); line-height: 1.0; letter-spacing: -0.035em; color: var(--text); margin-bottom: 22px; max-width: 13ch; }
 .brandside .bhero h2 em { font-style: italic; color: var(--accent); }
 .screen[data-temp="cold"] .brandside .bhero h2 em, .app[data-auth="technical"] .brandside .bhero h2 em { font-style: normal; }
