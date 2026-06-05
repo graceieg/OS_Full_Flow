@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { ScreenId, Role, AuthFeel } from './types'; // AuthFeel kept for data-auth attribute
 import { ROLES } from './data';
+import { supabase } from './lib/supabase';
 import { SignUp } from './components/screens/SignUp';
 import { SignIn } from './components/screens/SignIn';
 import { Verify } from './components/screens/Verify';
@@ -15,6 +16,26 @@ export default function App() {
   const [authFeel] = useState<AuthFeel>('warm');
   const [pendingEmail, setPendingEmail] = useState('');
   const profile = ROLES[role];
+
+  // Handle Supabase auth events — covers both the OTP path and the
+  // magic-link / confirmation-link path (link click sets a session
+  // automatically, which fires SIGNED_IN here).
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN' && session) {
+        // New signup confirmed via link → go to onboarding
+        // Returning sign-in → go to dashboard
+        // Use the verify screen as the branch: if we're still on verify/signup, it's a new account
+        setScreen(prev =>
+          prev === 'verify' || prev === 'signup' ? 'onboarding' : 'dashboard'
+        );
+      }
+      if (event === 'SIGNED_OUT') {
+        setScreen('signin');
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, []);
 
   return (
     <div className="app" data-auth={authFeel}>
