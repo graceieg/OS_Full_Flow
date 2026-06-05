@@ -21,11 +21,19 @@ export default function App() {
   // magic-link / confirmation-link path (link click sets a session
   // automatically, which fires SIGNED_IN here).
   useEffect(() => {
+    // Check immediately on mount — covers the confirmation-link redirect case where
+    // Supabase exchanges the ?code= param and establishes a session before our
+    // onAuthStateChange listener is registered.
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        setScreen(prev =>
+          prev === 'verify' || prev === 'signup' ? 'onboarding' : 'dashboard'
+        );
+      }
+    });
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_IN' && session) {
-        // New signup confirmed via link → go to onboarding
-        // Returning sign-in → go to dashboard
-        // Use the verify screen as the branch: if we're still on verify/signup, it's a new account
+      if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session) {
         setScreen(prev =>
           prev === 'verify' || prev === 'signup' ? 'onboarding' : 'dashboard'
         );
