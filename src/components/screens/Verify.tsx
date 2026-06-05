@@ -9,7 +9,7 @@ interface Props {
 }
 
 export function Verify({ isActive, email, onNavigate }: Props) {
-  const [digits, setDigits]     = useState<string[]>(['', '', '', '', '', '']);
+  const [digits, setDigits]     = useState<string[]>(['', '', '', '', '', '', '', '']);
   const [countdown, setCountdown] = useState(24);
   const [error, setError]       = useState('');
   const [loading, setLoading]   = useState(false);
@@ -28,7 +28,7 @@ export function Verify({ isActive, email, onNavigate }: Props) {
     const next = [...digits];
     next[i] = v;
     setDigits(next);
-    if (v && i < 5) refs.current[i + 1]?.focus();
+    if (v && i < 7) refs.current[i + 1]?.focus();
   };
 
   const handleKeyDown = (i: number, e: React.KeyboardEvent) => {
