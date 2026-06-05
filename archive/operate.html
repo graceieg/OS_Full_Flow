@@ -1,0 +1,2111 @@
+<!doctype html>
+<html lang="en" data-palette="amber">
+<head>
+  <meta charset="utf-8">
+  <title>CatMayOS · Teaching View v6</title>
+  <link rel="stylesheet" href="tokens.css">
+  <style>
+    :root {
+      --line:        rgba(255,255,255,0.05);
+      --line-strong: rgba(255,255,255,0.09);
+      --card-bg:     #11131A;
+      --card-border: rgba(255,255,255,0.07);
+      /* refined fg ramp */
+      --fg-2:        #B8B4A6;
+      --fg-3:        #8B8775;
+      --fg-4:        #5F5C50;
+      /* locked semantic colors */
+      --primary:     #E59C3B;   /* primary action / active step */
+      --safe:        #52A543;   /* healthy / passing / safe range */
+      --warn:        #E59C3B;   /* alert (same hue family, kept rare) */
+      --info:        #6FE6D8;
+      /* unified radii */
+      --r-card:      10px;
+      --r-input:     6px;
+      --r-pill:      999px;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0; padding: 0;
+      background: #1f2329;
+      color: var(--fg);
+      font-family: var(--font-sans);
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    /* ─── shell ─────────────────────────────────────────────── */
+    .frame {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 36px 28px 28px;
+    }
+    .frame-label {
+      font-family: var(--font-sans); font-size: 13px;
+      color: rgba(255,255,255,0.55);
+      margin-bottom: 12px;
+    }
+    .frame-label .changes {
+      display: inline-block;
+      padding: 2px 8px;
+      background: rgba(229,156,59,0.10);
+      border: 1px solid rgba(229,156,59,0.30);
+      color: var(--primary);
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 500;
+      margin-left: 10px;
+    }
+    .stage {
+      background: var(--bg);
+      border-radius: var(--r-card);
+      overflow: hidden;
+      display: grid;
+      grid-template-rows: 56px 38px 1fr 36px;
+      min-height: 960px;
+    }
+
+    /* ─── titlebar ──────────────────────────────────────────── */
+    .tb {
+      display: flex; align-items: center; gap: 14px;
+      padding: 0 24px;
+      border-bottom: 1px solid var(--line);
+    }
+    .tb .mark {
+      width: 28px; height: 22px;
+      color: #F0ECE2;
+      display: grid; place-items: center;
+      border: 1px solid var(--line-strong);
+      border-radius: 4px;
+    }
+    .tb .b {
+      font-family: var(--font-sans); font-weight: 600;
+      font-size: 15px;
+      color: var(--fg-bright);
+    }
+    .tb .view {
+      font-family: var(--font-sans); font-size: 13px;
+      color: var(--fg-3);
+    }
+    .tb .view::before {
+      content: "·";
+      color: var(--fg-4);
+      margin: 0 8px 0 4px;
+    }
+    .tb .spacer { flex: 1; }
+    .tb .mode-toggle {
+      display: inline-flex;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--r-input);
+      overflow: hidden;
+    }
+    .tb .mode-toggle > div {
+      padding: 6px 14px;
+      font-family: var(--font-sans); font-size: 12px; font-weight: 500;
+      color: var(--fg-3);
+      cursor: pointer;
+    }
+    .tb .mode-toggle > div.on {
+      background: var(--primary);
+      color: #0B0C0F;
+      font-weight: 600;
+    }
+    .tb .help-link {
+      font-family: var(--font-sans); font-size: 12px;
+      color: var(--fg-3);
+      padding: 6px 12px;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--r-input);
+    }
+    .tb .help-link .k {
+      color: var(--fg-4);
+      margin-left: 8px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+    }
+
+    /* ─── system status strip (replaces left-column block) ── */
+    .status-strip {
+      display: flex; align-items: center;
+      gap: 0;
+      padding: 0 24px;
+      border-bottom: 1px solid var(--line);
+      font-family: var(--font-sans); font-size: 12.5px;
+      color: var(--fg-3);
+    }
+    .status-strip .item {
+      padding: 0 18px 0 0;
+      margin-right: 18px;
+      border-right: 1px solid var(--line);
+      display: inline-flex; align-items: center; gap: 8px;
+    }
+    .status-strip .item:last-child { border-right: 0; margin-right: 0; padding-right: 0;}
+    .status-strip .item .k { color: var(--fg-4); }
+    .status-strip .item .v {
+      color: var(--fg);
+      font-family: var(--font-mono);
+      font-size: 12.5px;
+      font-feature-settings: "tnum" 1;
+    }
+    .status-strip .item .dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--safe);
+      box-shadow: 0 0 4px var(--safe);
+    }
+    .status-strip .item.warn .dot { background: var(--warn); box-shadow: 0 0 4px var(--warn); }
+    .status-strip .item.info .dot { background: var(--info); box-shadow: 0 0 4px rgba(111,230,216,0.6); }
+    .status-strip .item.neutral .dot { background: var(--fg-3); box-shadow: none; }
+    .status-strip .item.warn .v { color: var(--warn); }
+    .status-strip .item.info .v { color: var(--info); }
+    .status-strip .spacer { flex: 1; }
+    .status-strip .checks-summary {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 4px 10px;
+      border: 1px solid rgba(82,165,67,0.25);
+      background: rgba(82,165,67,0.06);
+      border-radius: var(--r-input);
+      color: var(--safe);
+      font-size: 12px;
+      font-weight: 500;
+    }
+    .status-strip .checks-summary .icn::before {
+      content: "✓";
+      font-family: var(--font-mono);
+      font-weight: 700;
+    }
+
+    /* ─── body grid ─────────────────────────────────────────── */
+    .body {
+      display: grid;
+      grid-template-columns: 280px 1fr 320px;
+      min-height: 0;
+    }
+    .col { padding: 22px 20px; min-width: 0; }
+    .col-l { border-right: 1px solid var(--line); }
+    .col-c { padding: 22px 26px; min-width: 0; }
+    .col-r { border-left: 1px solid var(--line); }
+
+    /* section headers — calmer */
+    .eye, .eye-2 {
+      display: flex; align-items: center; gap: 10px;
+      font-family: var(--font-sans);
+      font-size: 13px; font-weight: 600;
+      color: var(--fg-bright);
+      margin-bottom: 12px;
+    }
+    .eye-2 { margin: 22px 0 10px; }
+    .eye::before, .eye-2::before {
+      content: "";
+      width: 3px; height: 12px;
+      background: var(--fg-3);
+      border-radius: 2px;
+    }
+    .eye.is-active::before, .eye-2.is-active::before { background: var(--primary); }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--r-card);
+      padding: 16px 18px;
+    }
+
+    /* ─── LEFT COLUMN: teaching context ─────────────────────── */
+
+    /* vertical workflow stepper — flat progress indicator, not clickable list */
+    .v-stepper {
+      display: flex; flex-direction: column;
+      gap: 0;
+      position: relative;
+    }
+    .v-step {
+      display: grid;
+      grid-template-columns: 12px 1fr;
+      gap: 12px;
+      padding: 8px 0;
+      align-items: center;
+      position: relative;
+    }
+    .v-step + .v-step::before {
+      content: "";
+      position: absolute;
+      top: -6px; left: 5px;
+      width: 2px; height: 14px;
+      background: var(--line-strong);
+    }
+    .v-step.done + .v-step::before { background: rgba(82,165,67,0.40); }
+    .v-step .marker {
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      border: 1.5px solid var(--line-strong);
+      background: transparent;
+      flex: 0 0 12px;
+    }
+    .v-step .marker span { display: none; }
+    .v-step.done .marker {
+      background: var(--safe);
+      border-color: var(--safe);
+    }
+    .v-step.active .marker {
+      background: var(--primary);
+      border-color: var(--primary);
+    }
+    .v-step .body-c .n {
+      font-family: var(--font-sans);
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--fg-3);
+      letter-spacing: -0.005em;
+    }
+    .v-step.done .body-c .n { color: var(--fg-2); }
+    .v-step.active .body-c .n { color: var(--fg-bright); font-weight: 500; }
+    .v-step .body-c .sub { display: none; } /* sub-copy dropped to reduce clutter */
+    .v-step.active .body-c .sub {
+      display: block;
+      font-family: var(--font-sans);
+      font-size: 11.5px;
+      color: var(--fg-3);
+      margin-top: 2px;
+      font-weight: 400;
+    }
+    /* Run-card hover preview into step 4 — keep but quieter */
+    .v-step.is-next-up.preview .marker {
+      background: rgba(229,156,59,0.20);
+      border-color: var(--primary);
+    }
+    .v-step.is-next-up.preview .body-c .n { color: var(--fg); }
+
+    /* objectives list */
+    .objectives {
+      list-style: none;
+      margin: 0; padding: 0;
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    .objectives li {
+      display: grid;
+      grid-template-columns: 18px 1fr;
+      gap: 10px;
+      font-family: var(--font-sans);
+      font-size: 13px;
+      color: var(--fg-2);
+      line-height: 1.5;
+    }
+    .objectives li::before {
+      content: "";
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--primary);
+      margin-top: 8px;
+      margin-left: 5px;
+    }
+
+    /* mini sequence diagram */
+    .seq-card { padding: 14px 16px; }
+    .seq-card .ttl {
+      font-family: var(--font-sans);
+      font-size: 12.5px;
+      color: var(--fg-3);
+      margin-bottom: 10px;
+    }
+    .seq-svg { width: 100%; height: 64px; display: block; }
+
+    /* ─── CENTER COLUMN ─────────────────────────────────────── */
+
+    .pad-head {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+    .pad-title {
+      font-family: var(--font-sans);
+      font-size: 24px; font-weight: 600;
+      color: var(--fg-bright);
+      letter-spacing: -0.015em;
+      line-height: 1.2;
+    }
+    .pad-sub {
+      font-family: var(--font-sans); font-size: 13.5px;
+      color: var(--fg-2);
+      line-height: 1.5;
+      margin-top: 4px;
+    }
+    .recipe-pick {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 7px 12px;
+      background: var(--card-bg);
+      border: 1px solid var(--line-strong);
+      border-radius: var(--r-input);
+      font-family: var(--font-sans); font-size: 13px;
+      color: var(--fg);
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .recipe-pick .caret { color: var(--fg-3); }
+
+    /* COACH — moved above params */
+    .coach {
+      margin-bottom: 18px;
+      padding: 14px 18px;
+      border: 1px solid var(--card-border);
+      background: var(--card-bg);
+      border-left: 3px solid var(--primary);
+      border-radius: var(--r-card);
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 14px;
+      align-items: flex-start;
+    }
+    .coach .badge {
+      align-self: start;
+      padding: 4px 10px;
+      font-family: var(--font-sans); font-size: 12px;
+      font-weight: 600;
+      color: var(--primary);
+      background: rgba(229,156,59,0.10);
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+    .coach .copy {
+      font-family: var(--font-sans); font-size: 13.5px;
+      color: var(--fg);
+      line-height: 1.6;
+    }
+    .coach .copy b { color: var(--fg-bright); font-weight: 600; }
+    .coach .copy .term {
+      color: var(--primary);
+      border-bottom: 1px dotted rgba(229,156,59,0.5);
+      cursor: help;
+    }
+
+    /* parameter grid */
+    .params-head {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .params-head .ttl {
+      font-family: var(--font-sans); font-size: 14px;
+      font-weight: 600;
+      color: var(--fg-bright);
+    }
+    .params-head .hint-toggle {
+      font-family: var(--font-sans); font-size: 12px;
+      color: var(--fg-3);
+      cursor: pointer;
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 5px 10px;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--r-input);
+      user-select: none;
+    }
+    .params-head .hint-toggle:hover { color: var(--fg-bright); border-color: rgba(255,255,255,0.18); }
+    .params-head .hint-toggle::before {
+      content: "▾";
+      font-size: 9px;
+      color: var(--fg-3);
+      transition: transform 200ms;
+    }
+    .params.all-open .params-head { /* unused, kept for safety */ }
+    .params-wrap.all-open .hint-toggle::before { transform: rotate(180deg); }
+    .params-wrap.all-open .hint-toggle .lbl::before { content: "Collapse all explanations"; }
+    .params-wrap .hint-toggle .lbl::before { content: "Expand all explanations"; }
+
+    .params {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .param {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--r-card);
+      padding: 16px 18px 14px;
+    }
+    .param.is-anchor { /* the one filled card */
+      border-color: rgba(229,156,59,0.30);
+    }
+    .param-top {
+      display: flex; justify-content: space-between; align-items: baseline;
+      margin-bottom: 4px;
+    }
+    .param-name {
+      font-family: var(--font-sans); font-size: 14.5px;
+      color: var(--fg-bright); font-weight: 500;
+    }
+    .param-sym {
+      font-family: var(--font-mono); font-size: 12px;
+      color: var(--fg-3);
+      font-style: italic;
+    }
+    .param-val {
+      display: flex; align-items: baseline; gap: 6px;
+      margin: 2px 0 10px;
+      font-family: var(--font-sans);
+      font-size: 34px; line-height: 1;
+      color: var(--fg-bright); font-weight: 400;
+      letter-spacing: -0.02em;
+      font-feature-settings: "tnum" 1;
+    }
+    .param-val .unit {
+      font-family: var(--font-mono); font-size: 13px;
+      color: var(--fg-3);
+    }
+    .param-val .sup {
+      font-family: var(--font-sans); font-size: 20px;
+      color: var(--fg-bright);
+      align-self: flex-start;
+      margin-left: -2px;
+    }
+
+    /* slider with safe band — band now dominant, out-of-band hatched */
+    .param-track {
+      position: relative;
+      height: 8px;
+      border-radius: 4px;
+      background: repeating-linear-gradient(
+        135deg,
+        rgba(255,255,255,0.025) 0 4px,
+        rgba(255,255,255,0.055) 4px 8px
+      );
+      border: 1px solid rgba(255,255,255,0.05);
+      margin-top: 10px;
+    }
+    .param-track .safe {
+      position: absolute; top: -1px; bottom: -1px;
+      background: rgba(82,165,67,0.22);
+      border-left: 1.5px solid var(--safe);
+      border-right: 1.5px solid var(--safe);
+      border-radius: 2px;
+    }
+    .param-track .fill {
+      position: absolute; left: 0; top: 50%;
+      height: 2px;
+      background: var(--fg-2);
+      transform: translateY(-50%);
+      opacity: 0.35;
+    }
+    .param-track .knob {
+      position: absolute; top: 50%;
+      width: 14px; height: 14px;
+      background: #0B0C0F;
+      border: 2px solid var(--fg-bright);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 2;
+    }
+    .param-track .knob.in-safe {
+      background: var(--safe);
+      border-color: var(--safe);
+      box-shadow: 0 0 0 3px rgba(82,165,67,0.20);
+    }
+    .param-scale {
+      display: flex; justify-content: space-between;
+      margin-top: 8px;
+      font-family: var(--font-mono); font-size: 10.5px;
+      color: var(--fg-4);
+    }
+    .param-band-readout {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-top: 10px;
+      font-family: var(--font-sans); font-size: 11.5px;
+    }
+    .param-band-readout .safe-tag {
+      display: inline-flex; align-items: center; gap: 6px;
+      color: var(--safe);
+    }
+    .param-band-readout .safe-tag::before {
+      content: "";
+      width: 12px; height: 8px;
+      background: rgba(82,165,67,0.22);
+      border-left: 1.5px solid var(--safe);
+      border-right: 1.5px solid var(--safe);
+      border-radius: 2px;
+    }
+    .param-band-readout .safe-tag .nums {
+      font-family: var(--font-mono);
+      color: var(--fg-2);
+      font-feature-settings: "tnum" 1;
+    }
+    .param-band-readout .state {
+      color: var(--safe);
+      font-weight: 500;
+    }
+    .param-band-readout .state.out {
+      color: var(--fg-3);
+    }
+    /* progressive disclosure hint */
+    .param-hint {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 200ms ease;
+      font-family: var(--font-sans); font-size: 12.5px;
+      color: var(--fg-2);
+      line-height: 1.5;
+    }
+    .param.is-expanded .param-hint {
+      max-height: 120px;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px dashed var(--card-border);
+    }
+    .param-hint b { color: var(--fg-bright); font-weight: 600; }
+    .param-toggle {
+      margin-top: 10px;
+      font-family: var(--font-sans); font-size: 11.5px;
+      color: var(--fg-3);
+      cursor: pointer;
+      display: inline-flex; align-items: center; gap: 5px;
+    }
+    .param-toggle::after {
+      content: "▾";
+      font-size: 10px;
+      transition: transform 200ms;
+    }
+    .param.is-expanded .param-toggle::after { transform: rotate(180deg); }
+
+    /* objectives strip (now in center col, above params) */
+    .obj-strip {
+      display: flex; align-items: stretch; gap: 0;
+      margin-bottom: 18px;
+      padding: 0;
+      background: rgba(255,255,255,0.015);
+      border: 1px solid var(--card-border);
+      border-radius: var(--r-card);
+      overflow: hidden;
+    }
+    .obj-strip .label {
+      flex: 0 0 auto;
+      padding: 10px 14px;
+      font-family: var(--font-sans); font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--fg-3);
+      background: rgba(255,255,255,0.02);
+      border-right: 1px solid var(--card-border);
+      display: flex; align-items: center;
+    }
+    .obj-strip .list {
+      flex: 1;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0;
+    }
+    .obj-strip .obj {
+      padding: 10px 14px;
+      font-family: var(--font-sans); font-size: 12.5px;
+      color: var(--fg-2);
+      line-height: 1.45;
+      border-right: 1px solid var(--card-border);
+      display: flex; align-items: flex-start; gap: 8px;
+    }
+    .obj-strip .obj:last-child { border-right: 0; }
+    .obj-strip .obj .num {
+      font-family: var(--font-mono); font-size: 10.5px;
+      color: var(--primary);
+      flex: 0 0 auto;
+      padding-top: 1px;
+    }
+
+    /* run-card cross-link to Step 4 */
+    .run-card .step-link {
+      display: inline-flex; align-items: center; gap: 6px;
+      margin-top: 4px;
+      font-family: var(--font-sans); font-size: 11.5px;
+      color: var(--fg-3);
+    }
+    .run-card .step-link .arrow { color: var(--fg-4); }
+    .run-card .step-link b { color: var(--fg-2); font-weight: 500; }
+    .run-card.hovered { border-color: rgba(229,156,59,0.35); }
+
+    /* highlight Step 4 in sidebar when run-card is hovered — handled in stepper section above */
+
+    /* right column: collapsible groupings */
+    .r-disclosure {
+      margin-top: 14px;
+      border: 1px solid var(--card-border);
+      border-radius: var(--r-card);
+      background: var(--card-bg);
+      overflow: hidden;
+    }
+    .r-disclosure > summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 10px 14px;
+      display: flex; align-items: center; justify-content: space-between;
+      font-family: var(--font-sans); font-size: 12.5px;
+      color: var(--fg-2);
+      font-weight: 500;
+    }
+    .r-disclosure > summary::-webkit-details-marker { display: none; }
+    .r-disclosure > summary .left {
+      display: inline-flex; align-items: center; gap: 8px;
+    }
+    .r-disclosure > summary .count {
+      font-family: var(--font-mono); font-size: 11px;
+      color: var(--fg-3);
+      padding: 1px 6px;
+      border: 1px solid var(--line-strong);
+      border-radius: 3px;
+    }
+    .r-disclosure > summary .caret {
+      font-size: 10px; color: var(--fg-3);
+      transition: transform 180ms;
+    }
+    .r-disclosure[open] > summary .caret { transform: rotate(180deg); }
+    .r-disclosure .body-c {
+      padding: 4px 14px 14px;
+      border-top: 1px solid var(--card-border);
+    }
+    .run-card {
+      margin-top: 18px;
+      padding: 16px 20px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--r-card);
+      display: flex; align-items: center; gap: 14px;
+    }
+    .run-card .ttl {
+      font-family: var(--font-sans); font-size: 14px; font-weight: 600;
+      color: var(--fg-bright);
+    }
+    .run-card .shots {
+      font-family: var(--font-sans); font-size: 13px;
+      color: var(--fg-3);
+      display: inline-flex; align-items: center; gap: 8px;
+    }
+    .run-card .shots .input {
+      padding: 5px 12px;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--r-input);
+      font-family: var(--font-mono); font-size: 13px;
+      color: var(--fg-bright);
+      min-width: 72px;
+      text-align: right;
+    }
+    .run-card .spacer { flex: 1; }
+    .btn {
+      padding: 10px 18px;
+      border: 1px solid var(--line-strong);
+      background: transparent;
+      color: var(--fg);
+      font-family: var(--font-sans); font-size: 13px;
+      font-weight: 500;
+      border-radius: var(--r-input);
+      cursor: pointer;
+    }
+    .btn.ghost { color: var(--fg-3); }
+    .btn.primary {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #1a1108;
+      font-weight: 600;
+      padding: 10px 22px;
+    }
+    .btn .kbd {
+      margin-left: 10px;
+      padding: 2px 6px;
+      font-family: var(--font-mono); font-size: 10.5px;
+      color: rgba(26,17,8,0.55);
+      border: 1px solid rgba(26,17,8,0.25);
+      border-radius: 3px;
+    }
+    .btn.ghost .kbd, .btn:not(.primary) .kbd {
+      color: var(--fg-4);
+      border-color: var(--line-strong);
+    }
+
+    /* advanced controls collapsed under a disclosure */
+    .advanced {
+      margin-top: 10px;
+      font-family: var(--font-sans); font-size: 12px;
+      color: var(--fg-3);
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+    .advanced::before { content: "▸"; font-size: 9px; }
+
+    /* ─── RIGHT COLUMN ──────────────────────────────────────── */
+
+    /* idle state: dim the column slightly because Step 4 isn't active */
+    .col-r.is-idle { opacity: 0.6; }
+    .col-r .stage-cue {
+      font-family: var(--font-sans); font-size: 11.5px;
+      color: var(--fg-3);
+      margin-bottom: 12px;
+      padding: 7px 10px;
+      background: var(--card-bg);
+      border: 1px dashed var(--line-strong);
+      border-radius: var(--r-input);
+      text-align: center;
+    }
+
+    .readout-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .stat {
+      padding: 12px 14px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--r-card);
+    }
+    .stat .k {
+      font-family: var(--font-sans); font-size: 12px;
+      color: var(--fg-3);
+      margin-bottom: 4px;
+    }
+    .stat .v {
+      display: flex; align-items: baseline; gap: 5px;
+      font-family: var(--font-sans);
+      font-size: 22px; line-height: 1.1;
+      color: var(--fg-bright); font-weight: 500;
+      letter-spacing: -0.02em;
+      font-feature-settings: "tnum" 1;
+    }
+    .stat .v .u {
+      font-family: var(--font-mono); font-size: 11px;
+      color: var(--fg-3);
+      font-weight: 400;
+    }
+    .stat .target {
+      margin-top: 5px;
+      font-family: var(--font-sans); font-size: 11px;
+      color: var(--fg-3);
+    }
+    .stat .target.ok {
+      color: var(--safe);
+      font-weight: 500;
+    }
+    .stat .target.ok::before {
+      content: "✓ ";
+      font-family: var(--font-mono);
+      font-weight: 700;
+    }
+
+    /* scope card */
+    .scope-card {
+      margin-top: 12px;
+      padding: 12px 14px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--r-card);
+    }
+    .scope-head {
+      display: flex; justify-content: space-between; align-items: baseline;
+      font-family: var(--font-sans); font-size: 12.5px;
+      color: var(--fg-3);
+      margin-bottom: 8px;
+    }
+    .scope-head .title { color: var(--fg-bright); font-weight: 500; }
+    .scope-head .acq {
+      display: inline-flex; align-items: center; gap: 6px;
+      color: var(--safe);
+      font-size: 11.5px;
+      font-weight: 500;
+    }
+    .scope-head .acq::before {
+      content: "";
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--safe);
+      box-shadow: 0 0 4px var(--safe);
+    }
+    .scope-svg { width: 100%; height: 76px; display: block; }
+    .scope-note {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px dashed var(--card-border);
+      font-family: var(--font-sans); font-size: 12px;
+      color: var(--fg-2);
+      line-height: 1.5;
+    }
+
+    /* analysis as compact pill row */
+    .analysis-row {
+      display: flex; flex-wrap: wrap; gap: 6px;
+      margin-top: 10px;
+    }
+    .analysis-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 5px 10px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--r-pill);
+      font-family: var(--font-sans); font-size: 11.5px;
+      color: var(--fg-2);
+    }
+    .analysis-pill::before {
+      content: "";
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--safe);
+    }
+
+    /* glossary index (smaller, demoted) */
+    .glossary-index {
+      margin-top: 16px;
+      font-family: var(--font-sans); font-size: 11.5px;
+      color: var(--fg-3);
+      line-height: 1.7;
+    }
+    .glossary-index .ttl { color: var(--fg-2); margin-bottom: 2px; display: block; }
+    .glossary-index a {
+      color: var(--fg-2);
+      border-bottom: 1px dotted var(--fg-4);
+      cursor: pointer;
+      margin-right: 10px;
+      text-decoration: none;
+    }
+    .glossary-index a:hover { color: var(--primary); border-bottom-color: var(--primary); }
+
+    /* ─── status footer (plainer than shell in Learn mode) ── */
+    .footer {
+      display: flex; align-items: center;
+      padding: 0 24px;
+      border-top: 1px solid var(--line);
+      font-family: var(--font-sans); font-size: 12.5px;
+      color: var(--fg-2);
+      background: var(--bg);
+      gap: 12px;
+    }
+    .footer .status-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--safe);
+      box-shadow: 0 0 4px var(--safe);
+    }
+    .footer .label { color: var(--fg-3); }
+    .footer .spacer { flex: 1; }
+    .footer .keys {
+      font-family: var(--font-sans); font-size: 12px;
+      color: var(--fg-3);
+    }
+    .footer .keys kbd {
+      padding: 2px 7px;
+      border: 1px solid var(--line-strong);
+      border-radius: 3px;
+      color: var(--fg);
+      background: rgba(255,255,255,0.04);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      margin: 0 4px;
+    }
+
+    /* ─── ERROR / RECOVERY STATES ─────────────────────────── */
+
+    /* Danger / warn palette */
+    :root {
+      --danger:      #D8633F;
+      --danger-soft: rgba(216,99,63,0.10);
+      --danger-line: rgba(216,99,63,0.40);
+      --warn-soft:   rgba(229,156,59,0.10);
+      --warn-line:   rgba(229,156,59,0.38);
+    }
+
+    /* inline alert above coach */
+    .inline-alert {
+      display: none;
+      margin-bottom: 14px;
+      padding: 12px 14px 12px 14px;
+      border-radius: var(--r-card);
+      font-family: var(--font-sans); font-size: 13px;
+      color: var(--fg);
+      line-height: 1.5;
+      align-items: center;
+      gap: 12px;
+      border: 1px solid var(--warn-line);
+      background: var(--warn-soft);
+      border-left: 3px solid var(--warn);
+    }
+    .inline-alert.is-visible { display: flex; }
+    .inline-alert.danger {
+      border-color: var(--danger-line);
+      background: var(--danger-soft);
+      border-left-color: var(--danger);
+    }
+    .inline-alert .icn {
+      flex: 0 0 auto;
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      display: grid; place-items: center;
+      background: rgba(255,255,255,0.06);
+      font-family: var(--font-mono); font-size: 13px;
+      font-weight: 700;
+      color: var(--warn);
+    }
+    .inline-alert.danger .icn { color: var(--danger); }
+    .inline-alert .copy { flex: 1; }
+    .inline-alert .copy b { color: var(--fg-bright); font-weight: 600; }
+    .inline-alert .actions {
+      display: inline-flex; gap: 8px;
+    }
+    .inline-alert .a-btn {
+      padding: 6px 12px;
+      font-family: var(--font-sans); font-size: 12px;
+      font-weight: 500;
+      border-radius: var(--r-input);
+      border: 1px solid var(--line-strong);
+      background: transparent;
+      color: var(--fg);
+      cursor: pointer;
+    }
+    .inline-alert .a-btn.primary {
+      background: var(--warn);
+      border-color: var(--warn);
+      color: #1a1108;
+      font-weight: 600;
+    }
+    .inline-alert.danger .a-btn.primary {
+      background: var(--danger);
+      border-color: var(--danger);
+      color: #1f0e07;
+    }
+
+    /* parameter error variant */
+    .param.is-error {
+      border-color: var(--warn-line);
+      background: linear-gradient(0deg, var(--warn-soft), var(--warn-soft)), var(--card-bg);
+    }
+    .param .error-chip {
+      display: none;
+      padding: 2px 8px;
+      font-family: var(--font-sans); font-size: 11px;
+      font-weight: 500;
+      color: var(--warn);
+      background: var(--warn-soft);
+      border: 1px solid var(--warn-line);
+      border-radius: 3px;
+      margin-left: 8px;
+    }
+    .param.is-error .error-chip { display: inline-block; }
+
+    /* recovery row on param card */
+    .param-recovery {
+      display: none;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px dashed var(--card-border);
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-sans); font-size: 12px;
+      color: var(--fg-2);
+    }
+    .param.is-error .param-recovery { display: flex; }
+    .param-recovery .lbl { color: var(--fg-3); margin-right: 2px; }
+    .param-recovery .r-btn {
+      padding: 5px 11px;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--r-input);
+      background: transparent;
+      color: var(--fg);
+      font-family: var(--font-sans); font-size: 12px;
+      cursor: pointer;
+    }
+    .param-recovery .r-btn.primary {
+      background: var(--warn);
+      border-color: var(--warn);
+      color: #1a1108;
+      font-weight: 600;
+    }
+    .param-recovery .r-btn.ghost { color: var(--fg-3); }
+
+    /* run-card blocked panel */
+    .run-blocked {
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+      width: 100%;
+    }
+    .run-card.is-blocked {
+      border-color: var(--warn-line);
+      background: linear-gradient(0deg, var(--warn-soft), var(--warn-soft)), var(--card-bg);
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .run-card.is-blocked > div:not(.run-blocked):not(.spacer),
+    .run-card.is-blocked > .shots,
+    .run-card.is-blocked > .btn { display: none; }
+    .run-card.is-blocked .run-blocked { display: flex; }
+    .run-blocked .rb-head {
+      display: flex; align-items: center; gap: 10px;
+    }
+    .run-blocked .rb-icn {
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      display: grid; place-items: center;
+      background: rgba(229,156,59,0.18);
+      color: var(--warn);
+      font-family: var(--font-mono); font-size: 13px; font-weight: 700;
+    }
+    .run-blocked .rb-title {
+      font-family: var(--font-sans); font-size: 14px; font-weight: 600;
+      color: var(--fg-bright);
+    }
+    .run-blocked .rb-body {
+      font-family: var(--font-sans); font-size: 13px;
+      color: var(--fg-2);
+      line-height: 1.5;
+    }
+    .run-blocked .rb-body b { color: var(--fg-bright); font-weight: 600; }
+    .run-blocked .rb-actions {
+      display: flex; gap: 8px; flex-wrap: wrap;
+    }
+
+    /* disabled run button */
+    .btn.primary.is-disabled {
+      background: rgba(255,255,255,0.05);
+      border-color: var(--line-strong);
+      color: var(--fg-4);
+      cursor: not-allowed;
+    }
+    .btn.primary.is-disabled .kbd { color: var(--fg-4); border-color: var(--line-strong); }
+
+    /* run-progress panel (arming / running / completed) */
+    .run-progress {
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+      width: 100%;
+    }
+    .run-card.is-progress {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .run-card.is-progress > div:not(.run-progress):not(.spacer),
+    .run-card.is-progress > .shots,
+    .run-card.is-progress > .btn,
+    .run-card.is-progress > .run-blocked { display: none; }
+    .run-card.is-progress .run-progress { display: flex; }
+    .run-card.is-arming  { border-color: rgba(111,230,216,0.30); }
+    .run-card.is-running { border-color: rgba(111,230,216,0.40); }
+    .run-card.is-complete { border-color: rgba(82,165,67,0.40); }
+
+    .run-progress .rp-head {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 12px;
+    }
+    .run-progress .rp-title {
+      font-family: var(--font-sans); font-size: 14px; font-weight: 600;
+      color: var(--fg-bright);
+      display: inline-flex; align-items: center; gap: 10px;
+    }
+    .run-progress .rp-title .indicator {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--info);
+      box-shadow: 0 0 6px var(--info);
+      animation: rpPulse 1.2s ease-in-out infinite;
+    }
+    .run-card.is-complete .run-progress .rp-title .indicator {
+      background: var(--safe);
+      box-shadow: 0 0 6px var(--safe);
+      animation: none;
+    }
+    @keyframes rpPulse {
+      0%, 100% { opacity: 0.4; transform: scale(0.85); }
+      50%      { opacity: 1;   transform: scale(1.15); }
+    }
+    .run-progress .rp-count {
+      font-family: var(--font-mono); font-size: 12.5px;
+      color: var(--fg-2);
+      font-feature-settings: "tnum" 1;
+    }
+    .run-progress .rp-bar {
+      height: 4px;
+      border-radius: 2px;
+      background: rgba(255,255,255,0.06);
+      overflow: hidden;
+      position: relative;
+    }
+    .run-progress .rp-bar .fill {
+      position: absolute; left: 0; top: 0; bottom: 0;
+      background: var(--info);
+      transition: width 200ms;
+    }
+    .run-card.is-complete .run-progress .rp-bar .fill { background: var(--safe); }
+    .run-card.is-arming .run-progress .rp-bar .fill {
+      width: 30%;
+      background: linear-gradient(90deg, transparent 0%, var(--info) 50%, transparent 100%);
+      animation: rpIndet 1.4s linear infinite;
+    }
+    @keyframes rpIndet {
+      0%   { transform: translateX(-100%); }
+      100% { transform: translateX(400%); }
+    }
+    .run-progress .rp-body {
+      font-family: var(--font-sans); font-size: 12.5px;
+      color: var(--fg-3);
+      line-height: 1.5;
+    }
+    .run-progress .rp-actions {
+      display: flex; gap: 8px; flex-wrap: wrap;
+    }
+    .run-progress .rp-actions .r-btn {
+      padding: 6px 12px;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--r-input);
+      background: transparent;
+      color: var(--fg);
+      font-family: var(--font-sans); font-size: 12px;
+      cursor: pointer;
+    }
+    .run-progress .rp-actions .r-btn.primary {
+      background: var(--safe);
+      border-color: var(--safe);
+      color: #061a02;
+      font-weight: 600;
+    }
+    .run-progress .rp-actions .r-btn.ghost { color: var(--fg-3); }
+
+    /* acquisition badge: live + completed */
+    .scope-head .acq.live   { color: var(--info); }
+    .scope-head .acq.live::before { background: var(--info); box-shadow: 0 0 4px var(--info); animation: rpPulse 1.2s ease-in-out infinite; }
+    .scope-head .acq.complete { color: var(--safe); }
+    .scope-head .acq.complete::before { background: var(--safe); box-shadow: 0 0 4px var(--safe); }
+
+    /* footer info variant */
+    .footer.is-info .status-dot { background: var(--info); box-shadow: 0 0 4px var(--info); }
+    .footer.is-info span:not(.label):not(.keys):not(.status-dot) { color: var(--info); }
+
+    /* status strip warn variants for lock */
+    .status-strip .item.danger .dot { background: var(--danger); box-shadow: 0 0 4px var(--danger); }
+    .status-strip .item.danger .v { color: var(--danger); }
+    .status-strip .item.warn .v { color: var(--warn); }
+
+    /* footer state variants */
+    .footer.is-warn .status-dot { background: var(--warn); box-shadow: 0 0 4px var(--warn); }
+    .footer.is-danger .status-dot { background: var(--danger); box-shadow: 0 0 4px var(--danger); }
+    .footer.is-warn span:not(.label):not(.keys):not(.status-dot) { color: var(--warn); }
+    .footer.is-danger span:not(.label):not(.keys):not(.status-dot) { color: var(--danger); }
+
+    /* mid-run failure on right column */
+    .col-r.is-failure { opacity: 1; }
+    .col-r .stage-cue.is-failure {
+      background: var(--danger-soft);
+      border: 1px solid var(--danger-line);
+      border-style: solid;
+      color: var(--danger);
+      text-align: left;
+      padding: 10px 12px;
+      font-weight: 500;
+    }
+    .stat .v.empty { color: var(--fg-4); }
+    .stat .target.fail { color: var(--danger); }
+    .stat .target.fail::before { content: "✗ "; font-family: var(--font-mono); font-weight: 700; }
+
+    .scope-head .acq.lost {
+      color: var(--danger);
+    }
+    .scope-head .acq.lost::before {
+      background: var(--danger);
+      box-shadow: 0 0 4px var(--danger);
+    }
+    .scope-recovery {
+      display: none;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px dashed var(--card-border);
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .scope-recovery.is-visible { display: flex; }
+    .scope-recovery .r-btn {
+      padding: 5px 11px;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--r-input);
+      background: transparent;
+      color: var(--fg);
+      font-family: var(--font-sans); font-size: 12px;
+      cursor: pointer;
+    }
+    .scope-recovery .r-btn.primary {
+      background: var(--danger);
+      border-color: var(--danger);
+      color: #1f0e07;
+      font-weight: 600;
+    }
+
+    /* lock-step in sidebar getting warn */
+    .v-step.is-warn .marker {
+      background: var(--warn-soft);
+      border-color: var(--warn);
+      color: var(--warn);
+    }
+
+    /* ─── Tweaks panel ─────────────────────────────────────── */
+    .tweaks {
+      position: fixed;
+      top: 80px;
+      right: 28px;
+      width: 240px;
+      background: #14171F;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--r-card);
+      padding: 14px;
+      box-shadow: 0 10px 32px rgba(0,0,0,0.4);
+      z-index: 100;
+      font-family: var(--font-sans);
+      display: none;
+    }
+    .tweaks.is-open { display: block; }
+    .tweaks .t-head {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .tweaks .t-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--fg-bright);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .tweaks .t-close {
+      width: 20px; height: 20px;
+      border-radius: 4px;
+      display: grid; place-items: center;
+      color: var(--fg-3);
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .tweaks .t-close:hover { background: rgba(255,255,255,0.06); color: var(--fg-bright); }
+    .tweaks .t-section {
+      font-size: 11px;
+      color: var(--fg-3);
+      margin-bottom: 8px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .tweaks .t-radio {
+      display: flex; flex-direction: column;
+      gap: 6px;
+    }
+    .tweaks .t-radio label {
+      display: flex; align-items: center; gap: 9px;
+      padding: 7px 10px;
+      font-size: 12.5px;
+      color: var(--fg-2);
+      border: 1px solid var(--line);
+      border-radius: var(--r-input);
+      cursor: pointer;
+    }
+    .tweaks .t-radio label:hover { border-color: var(--line-strong); color: var(--fg); }
+    .tweaks .t-radio input { display: none; }
+    .tweaks .t-radio label .swatch {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--fg-4);
+    }
+    .tweaks .t-radio label.warn .swatch { background: var(--warn); }
+    .tweaks .t-radio label.danger .swatch { background: var(--danger); }
+    .tweaks .t-radio label.safe .swatch { background: var(--safe); }
+    .tweaks .t-radio input:checked + .lbl {
+      color: var(--fg-bright);
+      font-weight: 500;
+    }
+    .tweaks .t-radio label:has(input:checked) {
+      background: rgba(255,255,255,0.04);
+      border-color: var(--line-strong);
+    }
+    .tweaks .t-note {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid var(--line);
+      font-size: 11px;
+      color: var(--fg-3);
+      line-height: 1.5;
+    }
+    /* ─── State-switcher band (in-frame, replaces floating Tweaks panel) ─ */
+    .state-band {
+      display: flex; align-items: center; gap: 14px;
+      margin: 12px 0 14px;
+      padding: 10px 14px;
+      border: 1px dashed var(--line-strong);
+      border-radius: var(--r-card);
+      background: rgba(255,255,255,0.015);
+      font-family: var(--font-sans);
+    }
+    .state-band .sb-label {
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--fg-3);
+      flex: 0 0 auto;
+      padding-right: 12px;
+      border-right: 1px solid var(--line);
+    }
+    .state-band .sb-options {
+      display: flex; gap: 6px; flex-wrap: wrap;
+      flex: 1;
+    }
+    .state-band .sb-options label {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 5px 11px;
+      font-size: 12px;
+      color: var(--fg-2);
+      border: 1px solid var(--line-strong);
+      border-radius: var(--r-pill);
+      cursor: pointer;
+      user-select: none;
+    }
+    .state-band .sb-options label:hover { color: var(--fg-bright); }
+    .state-band .sb-options label .sw {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--fg-4);
+    }
+    .state-band .sb-options label.safe .sw   { background: var(--safe); }
+    .state-band .sb-options label.warn .sw   { background: var(--warn); }
+    .state-band .sb-options label.danger .sw { background: var(--danger); }
+    .state-band .sb-options input { display: none; }
+    .state-band .sb-options label:has(input:checked) {
+      background: rgba(255,255,255,0.06);
+      border-color: var(--fg-3);
+      color: var(--fg-bright);
+    }
+    .state-band .sb-hint {
+      font-size: 11px;
+      color: var(--fg-4);
+      flex: 0 0 auto;
+      padding-left: 12px;
+      border-left: 1px solid var(--line);
+    }
+  </style>
+</head>
+<body>
+  <div class="frame" data-screen-label="01 Teaching View v6">
+    <div class="frame-label">Teaching view v6 · WIREFRAME  v6 changes: error + recovery states
+ — use the state row below to switch between Ready / Out-of-band / Run-blocked / Lock-lost / Mid-run-failure</div>
+
+    <!-- State switcher (review chrome — sits with the wireframe annotation, not the product UI) -->
+    <div class="state-band" role="group" aria-label="Wireframe state switcher">
+      <div class="sb-label">View state</div>
+      <div class="sb-options" id="stateRadio">
+        <label class="safe"><input type="radio" name="state" value="ready" checked><span class="sw"></span><span>Ready</span></label>
+        <label class="warn"><input type="radio" name="state" value="out-of-band"><span class="sw"></span><span>Param out of band</span></label>
+        <label class="warn"><input type="radio" name="state" value="run-blocked"><span class="sw"></span><span>Run blocked</span></label>
+        <label><input type="radio" name="state" value="arming"><span class="sw" style="background:var(--info)"></span><span>Arming</span></label>
+        <label><input type="radio" name="state" value="running"><span class="sw" style="background:var(--info)"></span><span>Running</span></label>
+        <label class="safe"><input type="radio" name="state" value="completed"><span class="sw"></span><span>Completed</span></label>
+        <label class="danger"><input type="radio" name="state" value="lock-lost"><span class="sw"></span><span>Lock lost (pre-run)</span></label>
+        <label class="danger"><input type="radio" name="state" value="mid-run-fail"><span class="sw"></span><span>Lock lost mid-run</span></label>
+      </div>
+    </div>
+
+    <div class="stage">
+      <!-- ─── Titlebar ─── -->
+      <div class="tb">
+        <div class="mark">
+          <svg width="16" height="12" viewBox="0 0 22 16" fill="none">
+            <path d="M7 1 L1 8 L7 15" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M15 1 L21 8 L15 15" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            <line x1="11" y1="1" x2="11" y2="15" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <span class="b">CatMayOS</span>
+        <span class="view">Teaching session</span>
+        <div class="spacer"></div>
+        <div class="mode-toggle">
+          <div>Operate</div>
+          <div class="on">Learn</div>
+        </div>
+        <div class="help-link">Courses <span class="k">⌘?</span></div>
+      </div>
+
+      <!-- ─── System status STRIP (was a left-column block) ─── -->
+      <div class="status-strip">
+        <div class="item neutral"><span class="dot"></span><span class="k">Device</span><span class="v">[id]</span></div>
+        <div class="item info"><span class="dot"></span><span class="k">Drive</span><span class="v">[value · unit]</span></div>
+        <div class="item info"><span class="dot"></span><span class="k">Fridge</span><span class="v">[value · unit]</span></div>
+        <div class="item" id="lockItem"><span class="dot"></span><span class="k">Lock</span><span class="v" id="lockVal">stable</span></div>
+        <div class="item neutral"><span class="dot"></span><span class="k">Student</span><span class="v">[name]</span></div>
+        <div class="spacer"></div>
+      </div>
+
+      <!-- ─── Body ─── -->
+      <div class="body">
+
+        <!-- ─── LEFT COLUMN: teaching context ─── -->
+        <div class="col col-l">
+          <div class="eye is-active">This session</div>
+
+          <!-- vertical workflow stepper -->
+          <div class="v-stepper">
+            <div class="v-step done">
+              <div class="marker"><span>1</span></div>
+              <div class="body-c">
+                <div class="n">Pick recipe</div>
+                <div class="sub">Chose [Experiment]</div>
+              </div>
+            </div>
+            <div class="v-step done">
+              <div class="marker"><span>2</span></div>
+              <div class="body-c">
+                <div class="n">Calibrate channel</div>
+                <div class="sub">All 4 channels in range</div>
+              </div>
+            </div>
+            <div class="v-step active">
+              <div class="marker"><span>3</span></div>
+              <div class="body-c">
+                <div class="n">Set parameters</div>
+                <div class="sub">Tune each control inside its safe band</div>
+              </div>
+            </div>
+            <div class="v-step is-next-up">
+              <div class="marker"><span>4</span></div>
+              <div class="body-c">
+                <div class="n">Run &amp; analyze</div>
+                <div class="sub">Compare readout against targets</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="eye-2">Sequence diagram</div>
+          <div class="card seq-card">
+            <div class="ttl">[Pulse sequence sketch]</div>
+            <svg class="seq-svg" viewBox="0 0 240 64">
+              <!-- baseline -->
+              <line x1="0" y1="32" x2="240" y2="32" stroke="rgba(255,255,255,0.10)" stroke-width="1"/>
+              <!-- π/2 pulse -->
+              <rect x="6" y="18" width="14" height="28" fill="rgba(229,156,59,0.25)" stroke="#E59C3B" stroke-width="1" rx="1"/>
+              <text x="13" y="14" text-anchor="middle" fill="#B8B4A6" font-family="ui-monospace, monospace" font-size="9">π/2</text>
+              <!-- delays + π pulses -->
+              <line x1="20" y1="32" x2="40" y2="32" stroke="#5F5C50" stroke-width="1" stroke-dasharray="2 2"/>
+              <rect x="40" y="14" width="14" height="36" fill="rgba(229,156,59,0.18)" stroke="#E59C3B" stroke-width="1" rx="1"/>
+              <text x="47" y="10" text-anchor="middle" fill="#B8B4A6" font-family="ui-monospace, monospace" font-size="9">π</text>
+              <line x1="54" y1="32" x2="84" y2="32" stroke="#5F5C50" stroke-width="1" stroke-dasharray="2 2"/>
+              <rect x="84" y="14" width="14" height="36" fill="rgba(229,156,59,0.18)" stroke="#E59C3B" stroke-width="1" rx="1"/>
+              <text x="91" y="10" text-anchor="middle" fill="#B8B4A6" font-family="ui-monospace, monospace" font-size="9">π</text>
+              <line x1="98" y1="32" x2="128" y2="32" stroke="#5F5C50" stroke-width="1" stroke-dasharray="2 2"/>
+              <rect x="128" y="14" width="14" height="36" fill="rgba(229,156,59,0.18)" stroke="#E59C3B" stroke-width="1" rx="1"/>
+              <text x="135" y="10" text-anchor="middle" fill="#B8B4A6" font-family="ui-monospace, monospace" font-size="9">π</text>
+              <line x1="142" y1="32" x2="172" y2="32" stroke="#5F5C50" stroke-width="1" stroke-dasharray="2 2"/>
+              <text x="157" y="46" text-anchor="middle" fill="#5F5C50" font-family="ui-monospace, monospace" font-size="9">… ×N</text>
+              <!-- readout -->
+              <rect x="180" y="18" width="14" height="28" fill="rgba(82,165,67,0.22)" stroke="#52A543" stroke-width="1" rx="1"/>
+              <text x="187" y="14" text-anchor="middle" fill="#B8B4A6" font-family="ui-monospace, monospace" font-size="9">read</text>
+              <!-- decay envelope -->
+              <path d="M 200 32 Q 215 28 230 30 T 240 32" fill="none" stroke="#B8B4A6" stroke-width="1"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- ─── CENTER COLUMN: experiment ─── -->
+        <div class="col col-c">
+
+          <div class="pad-head">
+            <div>
+              <div class="pad-title">[Experiment title]</div>
+              <div class="pad-sub">[One-line description of the pulse sequence and what it measures]</div>
+            </div>
+            <div class="recipe-pick">[Recipe] <span class="caret">⌄</span></div>
+          </div>
+
+          <!-- inline alert (shown in error states) -->
+          <div class="inline-alert" id="inlineAlert">
+            <div class="icn">!</div>
+            <div class="copy" id="alertCopy">[Alert message]</div>
+            <div class="actions" id="alertActions"></div>
+          </div>
+
+          <!-- COACH moved above params -->
+          <div class="coach">
+            <span class="badge">Why we're doing this</span>
+            <div class="copy">
+              [2 sentences setting up the experiment in the student's words, ending with what to watch for on the readout. Hover any <span class="term">underlined term</span> for a definition.]
+            </div>
+          </div>
+
+          <!-- Lesson objectives surfaced above params (was buried in left col) -->
+          <div class="obj-strip">
+            <div class="label">Objectives</div>
+            <div class="list">
+              <div class="obj"><span class="num">01</span><span>[Objective 1 — one sentence, in the student's words.]</span></div>
+              <div class="obj"><span class="num">02</span><span>[Objective 2 — what they should be able to explain afterwards.]</span></div>
+              <div class="obj"><span class="num">03</span><span>[Objective 3 — the intuition this experiment is meant to build.]</span></div>
+            </div>
+          </div>
+
+          <div class="params-wrap">
+          <div class="params-head">
+            <div class="ttl">Parameters</div>
+            <div class="hint-toggle" id="expandAll"><span class="lbl"></span></div>
+          </div>
+
+          <div class="params">
+
+            <!-- Parameter 1 — ANCHOR, filled with regime-neutral example -->
+            <div class="param is-anchor is-expanded">
+              <div class="param-top">
+                <div class="param-name">Flip angle</div>
+                <div class="param-sym">θ</div>
+              </div>
+              <div class="param-val">180<span class="sup">°</span></div>
+              <div class="param-track">
+                <span class="safe" style="left:44.4%;right:11.1%"></span>
+                <span class="fill" style="width:50%"></span>
+                <span class="knob in-safe" style="left:50%"></span>
+              </div>
+              <div class="param-scale">
+                <span>0°</span>
+                <span>360°</span>
+              </div>
+              <div class="param-band-readout">
+                <span class="safe-tag">safe band <span class="nums">160°–320°</span></span>
+                <span class="state">inside · 180°</span>
+              </div>
+              <div class="param-toggle">Hide explanation</div>
+              <div class="param-hint">
+                [Plain-English description of what this parameter does — for review.
+                The shaded range is the calibrated operating window; outside it the experiment is no longer reliable.]
+              </div>
+            </div>
+
+            <!-- Parameter 2 — collapsed -->
+            <div class="param">
+              <div class="param-top">
+                <div class="param-name">[Parameter 2]</div>
+                <div class="param-sym">[symbol]</div>
+              </div>
+              <div class="param-val">[value] <span class="unit">[unit]</span></div>
+              <div class="param-track">
+                <span class="safe" style="left:12%;right:64%"></span>
+                <span class="fill" style="width:20%"></span>
+                <span class="knob in-safe" style="left:20%"></span>
+              </div>
+              <div class="param-scale">
+                <span>[min]</span>
+                <span>[max]</span>
+              </div>
+              <div class="param-band-readout">
+                <span class="safe-tag">safe band <span class="nums">[lo]–[hi]</span></span>
+                <span class="state">inside · [value]</span>
+              </div>
+              <div class="param-toggle">Show explanation</div>
+              <div class="param-hint">
+                [Plain-English description goes here.]
+              </div>
+            </div>
+
+            <!-- Parameter 3 — collapsed -->
+            <div class="param">
+              <div class="param-top">
+                <div class="param-name">[Parameter 3]</div>
+                <div class="param-sym">[symbol]</div>
+              </div>
+              <div class="param-val">[value] <span class="unit">[unit]</span></div>
+              <div class="param-track">
+                <span class="safe" style="left:50%;right:25%"></span>
+                <span class="fill" style="width:67%"></span>
+                <span class="knob in-safe" style="left:67%"></span>
+              </div>
+              <div class="param-scale">
+                <span>[min]</span>
+                <span>[max]</span>
+              </div>
+              <div class="param-band-readout">
+                <span class="safe-tag">safe band <span class="nums">[lo]–[hi]</span></span>
+                <span class="state">inside · [value]</span>
+              </div>
+              <div class="param-toggle">Show explanation</div>
+              <div class="param-hint">
+                [Plain-English description goes here.]
+              </div>
+            </div>
+
+            <!-- Parameter 4 — collapsed, value outside safe band -->
+            <div class="param" id="param4">
+              <div class="param-top">
+                <div class="param-name">[Parameter 4] <span class="error-chip">Out of safe band</span></div>
+                <div class="param-sym">[symbol]</div>
+              </div>
+              <div class="param-val">[value] <span class="unit">[unit]</span></div>
+              <div class="param-track">
+                <span class="safe" style="left:46%;right:46%;"></span>
+                <span class="fill" style="width:36%"></span>
+                <span class="knob" style="left:36%"></span>
+              </div>
+              <div class="param-scale">
+                <span>[min]</span>
+                <span>[max]</span>
+              </div>
+              <div class="param-band-readout">
+                <span class="safe-tag">safe band <span class="nums">[lo]–[hi]</span></span>
+                <span class="state out">below band · [value]</span>
+              </div>
+              <div class="param-toggle">Show explanation</div>
+              <div class="param-hint">
+                [Plain-English description goes here.]
+              </div>
+              <div class="param-recovery">
+                <span class="lbl">Recover:</span>
+                <button class="r-btn primary">Snap to nearest safe value</button>
+                <button class="r-btn">Override</button>
+                <button class="r-btn ghost">What does this mean?</button>
+              </div>
+            </div>
+          </div>
+          </div><!-- /params-wrap -->
+
+          <!-- Single dominant CTA. Advanced (Arm / Compile / Reset) tucked away. -->
+          <div class="run-card" id="runCard">
+            <div>
+              <div class="ttl">Run experiment</div>
+              <div class="step-link"><span class="arrow">→</span> advances to <b>Step 4 · Run &amp; analyze</b></div>
+            </div>
+            <div class="spacer"></div>
+            <div class="shots">
+              <span>Shots</span>
+              <span class="input">[N]</span>
+            </div>
+            <button class="btn primary" id="runBtn">Run experiment <span class="kbd">↵</span></button>
+            <div class="run-blocked" id="runBlocked">
+              <div class="rb-head">
+                <span class="rb-icn">!</span>
+                <span class="rb-title" id="rbTitle">Run blocked</span>
+              </div>
+              <div class="rb-body" id="rbBody">[Reason]</div>
+              <div class="rb-actions" id="rbActions"></div>
+            </div>
+            <div class="run-progress" id="runProgress">
+              <div class="rp-head">
+                <span class="rp-title"><span class="indicator"></span><span id="rpTitle">[Title]</span></span>
+                <span class="rp-count" id="rpCount"></span>
+              </div>
+              <div class="rp-bar"><div class="fill" id="rpFill" style="width:0%"></div></div>
+              <div class="rp-body" id="rpBody">[Body]</div>
+              <div class="rp-actions" id="rpActions"></div>
+            </div>
+          </div>
+          <div class="advanced" style="margin-top: 8px; padding-left: 2px;">Advanced · Arm, Compile, Reset</div>
+        </div>
+
+        <!-- ─── RIGHT COLUMN: readout (idle until Step 4) ─── -->
+        <div class="col col-r is-idle" id="colR">
+          <div class="stage-cue" id="stageCue">Step 4 · readout populates after Run</div>
+
+          <div class="eye">Signal readout</div>
+          <div class="readout-grid">
+            <div class="stat" data-stat="1">
+              <div class="k">[Metric 1]</div>
+              <div class="v">[value] <span class="u">[unit]</span></div>
+              <div class="target">target [range]</div>
+            </div>
+            <div class="stat" data-stat="2">
+              <div class="k">[Metric 2]</div>
+              <div class="v">[value] <span class="u">[unit]</span></div>
+              <div class="target ok">within target</div>
+            </div>
+            <div class="stat" data-stat="3">
+              <div class="k">[Metric 3]</div>
+              <div class="v">[value] <span class="u">[unit]</span></div>
+              <div class="target">typical [range]</div>
+            </div>
+            <div class="stat" data-stat="4">
+              <div class="k">[Metric 4]</div>
+              <div class="v">[value] <span class="u">[unit]</span></div>
+              <div class="target">aim [range]</div>
+            </div>
+          </div>
+
+          <div class="scope-card">
+            <div class="scope-head">
+              <span class="title">[Signal trace · last shot]</span>
+              <span class="acq" id="acqState">Acquired</span>
+            </div>
+            <svg class="scope-svg" viewBox="0 0 280 76" preserveAspectRatio="none">
+              <defs>
+                <pattern id="grat4" width="28" height="19" patternUnits="userSpaceOnUse">
+                  <path d="M28 0 L0 0 0 19" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="0.5"/>
+                </pattern>
+              </defs>
+              <rect width="280" height="76" fill="url(#grat4)"/>
+              <path d="M0 38 Q 8 12, 16 38 T 32 38 T 48 38 T 64 38 T 80 38 T 96 38 T 112 38 T 128 38 T 144 38 T 160 38 T 176 38 T 192 38 T 208 38 T 224 38 T 240 38 T 256 38 T 280 38"
+                    fill="none" stroke="#DDD9C8" stroke-width="1.4"/>
+            </svg>
+            <div class="scope-note" id="scopeNote">
+              [Short annotation explaining what the trace shows and what the student should look for.]
+            </div>
+            <div class="scope-recovery" id="scopeRecovery">
+              <button class="r-btn primary">Re-acquire lock</button>
+              <button class="r-btn">Abort run</button>
+              <button class="r-btn">View diagnostics</button>
+            </div>
+          </div>
+
+          <div class="eye-2">System checks</div>
+          <details class="r-disclosure">
+            <summary>
+              <span class="left">
+                <span>All checks passing</span>
+                <span class="count">3 / 3</span>
+              </span>
+              <span class="caret">▾</span>
+            </summary>
+            <div class="body-c">
+              <div class="analysis-row">
+                <span class="analysis-pill">[Check 1]</span>
+                <span class="analysis-pill">[Check 2]</span>
+                <span class="analysis-pill">[Check 3]</span>
+                <span class="analysis-pill">[Check 4]</span>
+              </div>
+            </div>
+          </details>
+
+          <details class="r-disclosure">
+            <summary>
+              <span class="left">
+                <span>Glossary</span>
+                <span class="count">7 terms</span>
+              </span>
+              <span class="caret">▾</span>
+            </summary>
+            <div class="body-c">
+              <div class="glossary-index">
+                <a>[Term]</a><a>[Term]</a><a>[Term]</a><a>[Term]</a><a>[Term]</a><a>[Term]</a><a>[Term]</a>
+              </div>
+            </div>
+          </details>
+        </div>
+      </div>
+
+      <!-- ─── Footer (plain status for Learn mode) ─── -->
+      <div class="footer" id="footer">
+        <span class="status-dot"></span>
+        <span class="label">Status</span>
+        <span id="footerMsg">Ready — all parameters inside safe bands</span>
+        <div class="spacer"></div>
+        <span class="keys">Run <kbd>↵</kbd> &nbsp; Reset <kbd>R</kbd></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── Tweaks panel removed in favour of inline state-band (see top of frame) ─── -->
+
+  <script>
+    // Run-card hover → preview Step 4 highlight in sidebar
+    (function () {
+      const card = document.getElementById('runCard');
+      const btn  = document.getElementById('runBtn');
+      const step = document.querySelector('.v-step.is-next-up');
+      if (!card || !step) return;
+      const enter = () => { step.classList.add('preview'); card.classList.add('hovered'); };
+      const leave = () => { step.classList.remove('preview'); card.classList.remove('hovered'); };
+      card.addEventListener('mouseenter', enter);
+      card.addEventListener('mouseleave', leave);
+      if (btn) {
+        btn.addEventListener('focus', enter);
+        btn.addEventListener('blur', leave);
+      }
+    })();
+
+    // Expand-all explanations toggle (mirrors per-card state)
+    (function () {
+      const wrap = document.querySelector('.params-wrap');
+      const btn  = document.getElementById('expandAll');
+      if (!wrap || !btn) return;
+      const cards = () => wrap.querySelectorAll('.param');
+      const setLabel = (toggle) => {
+        toggle.querySelector('.param-toggle') &&
+          (toggle.querySelector('.param-toggle').textContent =
+            toggle.classList.contains('is-expanded') ? 'Hide explanation' : 'Show explanation');
+      };
+      const syncWrap = () => {
+        const all = [...cards()];
+        const allOpen = all.length > 0 && all.every(c => c.classList.contains('is-expanded'));
+        wrap.classList.toggle('all-open', allOpen);
+      };
+      btn.addEventListener('click', () => {
+        const open = !wrap.classList.contains('all-open');
+        cards().forEach(c => {
+          c.classList.toggle('is-expanded', open);
+          setLabel(c);
+        });
+        wrap.classList.toggle('all-open', open);
+      });
+      // per-card toggles still work
+      cards().forEach(c => {
+        const t = c.querySelector('.param-toggle');
+        if (!t) return;
+        t.addEventListener('click', () => {
+          c.classList.toggle('is-expanded');
+          setLabel(c);
+          syncWrap();
+        });
+      });
+      syncWrap();
+    })();
+
+    // ─── State controller (Tweaks) ─────────────────────────
+    (function () {
+      const $ = (id) => document.getElementById(id);
+      const param4    = $('param4');
+      const runCard   = $('runCard');
+      const runBtn    = $('runBtn');
+      const rbTitle   = $('rbTitle');
+      const rbBody    = $('rbBody');
+      const rbActions = $('rbActions');
+      const rpTitle   = $('rpTitle');
+      const rpCount   = $('rpCount');
+      const rpFill    = $('rpFill');
+      const rpBody    = $('rpBody');
+      const rpActions = $('rpActions');
+      const alertEl   = $('inlineAlert');
+      const alertCopy = $('alertCopy');
+      const alertActs = $('alertActions');
+      const footer    = $('footer');
+      const footerMsg = $('footerMsg');
+      const lockItem  = $('lockItem');
+      const lockVal   = $('lockVal');
+      const colR      = $('colR');
+      const stageCue  = $('stageCue');
+      const acqState  = $('acqState');
+      const scopeRec  = $('scopeRecovery');
+      const scopeNote = $('scopeNote');
+      const steps     = document.querySelectorAll('.v-step');
+
+      // Snapshot the canonical .stat tile contents so we can restore them in reset()
+      const statTiles = [...document.querySelectorAll('.stat')];
+      const statDefaults = statTiles.map(s => ({
+        v:        s.querySelector('.v').innerHTML,
+        target:   s.querySelector('.target').textContent,
+        targetCl: s.querySelector('.target').className,
+      }));
+
+      const setBtns = (host, btns) => {
+        host.innerHTML = '';
+        btns.forEach(b => {
+          const el = document.createElement('button');
+          el.className = 'a-btn' + (b.primary ? ' primary' : '');
+          el.textContent = b.label;
+          host.appendChild(el);
+        });
+      };
+      const setRbBtns = (host, btns) => {
+        host.innerHTML = '';
+        btns.forEach(b => {
+          const el = document.createElement('button');
+          el.className = 'r-btn' + (b.primary ? ' primary' : '');
+          el.textContent = b.label;
+          host.appendChild(el);
+        });
+      };
+      // Reuse for run-progress action buttons
+      const setRpBtns = setRbBtns;
+
+      // Sidebar stepper: pass {active: idx, done: [idx,...], nextUp: idx}
+      // Indices are 0-based (Step 1 → 0)
+      const setSteps = (cfg) => {
+        steps.forEach((el, i) => {
+          el.classList.remove('done', 'active', 'is-next-up');
+          if ((cfg.done || []).includes(i)) el.classList.add('done');
+          if (cfg.active === i) el.classList.add('active');
+          if (cfg.nextUp === i) el.classList.add('is-next-up');
+        });
+      };
+
+      const p4Knob   = param4.querySelector('.knob');
+      const p4State  = param4.querySelector('.param-band-readout .state');
+      const setP4InBand = (inBand) => {
+        if (inBand) {
+          p4Knob.style.left = '50%';
+          p4Knob.classList.add('in-safe');
+          p4State.classList.remove('out');
+          p4State.textContent = 'inside · [value]';
+        } else {
+          p4Knob.style.left = '36%';
+          p4Knob.classList.remove('in-safe');
+          p4State.classList.add('out');
+          p4State.textContent = 'below band · [value]';
+        }
+      };
+
+      const reset = () => {
+        param4.classList.remove('is-error');
+        setP4InBand(true);
+        runCard.classList.remove('is-blocked', 'is-progress', 'is-arming', 'is-running', 'is-complete');
+        runBtn.classList.remove('is-disabled');
+        runBtn.innerHTML = 'Run experiment <span class="kbd">↵</span>';
+        alertEl.classList.remove('is-visible', 'danger');
+        footer.classList.remove('is-warn', 'is-danger', 'is-info');
+        lockItem.classList.remove('warn', 'danger');
+        lockVal.textContent = 'stable';
+        colR.classList.add('is-idle');
+        colR.classList.remove('is-failure');
+        stageCue.className = 'stage-cue';
+        stageCue.textContent = 'Step 4 · readout populates after Run';
+        acqState.className = 'acq';
+        acqState.textContent = 'Acquired';
+        scopeRec.classList.remove('is-visible');
+        scopeNote.style.display = '';
+        // Restore readout tiles from snapshot
+        statTiles.forEach((s, i) => {
+          const v = s.querySelector('.v');
+          const t = s.querySelector('.target');
+          v.innerHTML = statDefaults[i].v;
+          v.classList.remove('empty');
+          t.className = statDefaults[i].targetCl;
+          t.textContent = statDefaults[i].target;
+        });
+        // Default stepper: Step 1 done, 2 done, 3 active, 4 next-up
+        setSteps({ done: [0, 1], active: 2, nextUp: 3 });
+      };
+
+      const states = {
+        'ready': () => {
+          footerMsg.textContent = 'Ready — all parameters inside safe bands';
+          // hide error chip on param 4 by moving knob inside band visually
+          // (we leave param 4 visual "below band" but suppress error styling, since param4 is the wireframe demo case)
+          // Cleaner: hide error chip entirely
+          param4.classList.remove('is-error');
+        },
+        'out-of-band': () => {
+          setP4InBand(false);
+          param4.classList.add('is-error');
+          alertEl.classList.add('is-visible');
+          alertCopy.innerHTML = '<b>1 parameter outside its safe band</b> · Parameter 4 is below its calibrated window. Run is allowed but readout may not be reliable.';
+          setBtns(alertActs, [
+            { label: 'Snap to safe', primary: true },
+            { label: 'Review' },
+          ]);
+          footer.classList.add('is-warn');
+          footerMsg.textContent = '1 parameter outside safe band · review before running';
+        },
+        'run-blocked': () => {
+          setP4InBand(false);
+          param4.classList.add('is-error');
+          runCard.classList.add('is-blocked');
+          rbTitle.textContent = 'Run blocked';
+          rbBody.innerHTML = '<b>Parameter 4</b> ([value]) is below its safe band of [lo]–[hi]. Bring it into the band, or override if you understand the trade-off.';
+          setRbBtns(rbActions, [
+            { label: 'Snap to safe & run', primary: true },
+            { label: 'Override (type "I understand")' },
+            { label: 'Cancel' },
+          ]);
+          footer.classList.add('is-warn');
+          footerMsg.textContent = 'Run blocked — out-of-band parameter';
+        },
+        'arming': () => {
+          runCard.classList.add('is-progress', 'is-arming');
+          rpTitle.textContent = 'Compiling sequence…';
+          rpCount.textContent = '';
+          rpFill.style.width = '';
+          rpBody.innerHTML = 'Translating UI commands into firmware-ready packets and validating round-trip timing.';
+          setRpBtns(rpActions, [{ label: 'Cancel', primary: false }]);
+          footer.classList.add('is-info');
+          footerMsg.textContent = 'Compiling sequence — please wait';
+          setSteps({ done: [0, 1], active: 2, nextUp: 3 });
+        },
+        'running': () => {
+          runCard.classList.add('is-progress', 'is-running');
+          rpTitle.textContent = 'Running';
+          rpCount.textContent = '37 / 100 shots';
+          rpFill.style.width = '37%';
+          rpBody.innerHTML = 'Live trace updating on the right. Pause to inspect mid-run; abort discards partial data.';
+          setRpBtns(rpActions, [
+            { label: 'Pause' },
+            { label: 'Abort run' },
+          ]);
+          // Right column un-dims and shows live acquisition + partial scope
+          colR.classList.remove('is-idle');
+          stageCue.textContent = 'Running · shot 37 of 100';
+          acqState.className = 'acq live';
+          acqState.textContent = 'Acquiring';
+          // Partial readout: tiles 1 and 2 populated, 3 and 4 still pending
+          const stats = document.querySelectorAll('.stat');
+          stats[2].querySelector('.v').innerHTML = '— <span class="u">[unit]</span>';
+          stats[2].querySelector('.v').classList.add('empty');
+          stats[2].querySelector('.target').textContent = 'pending';
+          stats[3].querySelector('.v').innerHTML = '— <span class="u">[unit]</span>';
+          stats[3].querySelector('.v').classList.add('empty');
+          stats[3].querySelector('.target').textContent = 'pending';
+          // Stepper: Step 3 done, Step 4 active
+          setSteps({ done: [0, 1, 2], active: 3 });
+          footer.classList.add('is-info');
+          footerMsg.textContent = 'Running shot 37 / 100 · lock stable';
+        },
+        'completed': () => {
+          runCard.classList.add('is-progress', 'is-complete');
+          rpTitle.textContent = 'Run complete';
+          rpCount.textContent = '100 / 100 shots';
+          rpFill.style.width = '100%';
+          rpBody.innerHTML = 'All readouts within target. Save the run, compare against a previous result, or re-run with a tweaked parameter.';
+          setRpBtns(rpActions, [
+            { label: 'Save run', primary: true },
+            { label: 'Run again' },
+            { label: 'Compare to previous' },
+          ]);
+          colR.classList.remove('is-idle');
+          stageCue.textContent = 'Run complete · readout below reflects last shot';
+          acqState.className = 'acq complete';
+          acqState.textContent = 'Complete';
+          // All targets met (mark all as ok)
+          document.querySelectorAll('.stat .target').forEach(t => {
+            t.className = 'target ok';
+            t.textContent = 'within target';
+          });
+          setSteps({ done: [0, 1, 2, 3] });
+          footerMsg.textContent = 'Run complete — all targets met';
+          footer.classList.remove('is-warn', 'is-danger', 'is-info');
+        },
+        'lock-lost': () => {
+          lockItem.classList.add('danger');
+          lockVal.textContent = 'lost';
+          alertEl.classList.add('is-visible', 'danger');
+          alertCopy.innerHTML = '<b>Lock lost</b> · The fridge / drive lock dropped while idle. Recalibrate before running — current readouts will be unreliable.';
+          setBtns(alertActs, [
+            { label: 'Re-acquire lock', primary: true },
+            { label: 'View diagnostics' },
+          ]);
+          runBtn.classList.add('is-disabled');
+          runBtn.innerHTML = 'Run · locked';
+          footer.classList.add('is-danger');
+          footerMsg.textContent = 'Lock lost — recalibrate before running';
+        },
+        'mid-run-fail': () => {
+          setSteps({ done: [0, 1, 2], active: 3 });
+          lockItem.classList.add('danger');
+          lockVal.textContent = 'lost';
+          colR.classList.remove('is-idle');
+          colR.classList.add('is-failure');
+          stageCue.className = 'stage-cue is-failure';
+          stageCue.textContent = 'Lock lost at shot 37 / 100 — partial data discarded';
+          acqState.className = 'acq lost';
+          acqState.textContent = 'Lost';
+          scopeRec.classList.add('is-visible');
+          scopeNote.style.display = 'none';
+          // Empty out two of the readout tiles
+          const stats = document.querySelectorAll('.stat');
+          stats[0].querySelector('.v').innerHTML = '— <span class="u">[unit]</span>';
+          stats[0].querySelector('.v').classList.add('empty');
+          stats[0].querySelector('.target').className = 'target fail';
+          stats[0].querySelector('.target').textContent = 'no data';
+          stats[3].querySelector('.v').innerHTML = '— <span class="u">[unit]</span>';
+          stats[3].querySelector('.v').classList.add('empty');
+          stats[3].querySelector('.target').className = 'target fail';
+          stats[3].querySelector('.target').textContent = 'no data';
+          runBtn.classList.add('is-disabled');
+          runBtn.innerHTML = 'Re-acquire to retry';
+          footer.classList.add('is-danger');
+          footerMsg.textContent = 'Lock lost mid-run · re-acquire and re-run';
+        },
+      };
+
+      const applyState = (name) => {
+        reset();
+        (states[name] || states.ready)();
+      };
+
+      // wire radio
+      document.querySelectorAll('input[name="state"]').forEach(r => {
+        r.addEventListener('change', () => applyState(r.value));
+      });
+
+      // default
+      applyState('ready');
+      window.__applyState = applyState;
+    })();
+
+    // ─── Tweaks panel host protocol removed (state-switcher now lives inline at top of frame) ──
+  </script>
+</body>
+</html>

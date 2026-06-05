@@ -1,0 +1,240 @@
+/* =========================================================
+   Katmai Computing — Color & Type Tokens
+   ---------------------------------------------------------
+   Two palettes coexist:
+   • "Amber" — the CatMayOS terminal palette (primary)
+   • "Blue"  — the Katmai web UI palette (alternative)
+   The brand is deciding between them; both are tokenized
+   here so designs can switch by changing :root[data-palette].
+   ========================================================= */
+
+/* -------- Fonts -------- */
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Fira+Mono:wght@400;500&family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;1,400&display=swap');
+
+:root {
+  /* ===== AMBER palette (default — CatMayOS terminal) ===== */
+
+  /* Backgrounds */
+  --amber-bg:           #0B0C0F; /* desktop / outside */
+  --amber-bg-sunken:    #0E0F18; /* deeper recess (scope behind graticule) */
+  --amber-surface:      #16181F; /* panel */
+  --amber-surface-2:    #1B1E27; /* hover surface */
+  --amber-surface-3:    #11131A; /* deepest inset (data fields) */
+  --amber-titlebar:     #0B0C0F;
+
+  /* Borders */
+  --amber-border:       rgba(255,255,255,0.05);
+  --amber-border-strong:rgba(255,255,255,0.09);
+  --amber-border-warm:  rgba(196,165,92,0.13);
+  --amber-rule:         #272B22;
+
+  /* Foreground */
+  --amber-fg:           #DDD9C8; /* bone — body text */
+  --amber-fg-bright:    #F0ECE2; /* near white for emphasis */
+  --amber-fg-muted:     #9C9886; /* labels (DM Mono caps) */
+  --amber-fg-dim:       #48503E; /* hint/inactive olive */
+  --amber-fg-faint:     #3E3D38; /* helper text */
+  --amber-fg-ghost:     #555346; /* unreached state labels */
+
+  /* Accent — amber */
+  --amber-accent:       #C4A55C; /* primary */
+  --amber-accent-hot:   #E59C3B; /* hot/active */
+  --amber-accent-warm:  #C8A26A; /* operator badge */
+  --amber-accent-dim:   rgba(196,165,92,0.13);
+  --amber-accent-fill:  rgba(200,162,106,0.14);
+
+  /* Semantic */
+  --amber-ok:           #52A543; /* idle/ok green */
+  --amber-ok-bg:        rgba(82,165,67,0.16);
+  --amber-warn:         #E59C3B;
+  --amber-bad:          #D9534F;
+  --amber-info:         #6FE6D8;
+
+  /* ===== BLUE palette (Katmai web UI) ===== */
+  --blue-bg:            #000000;
+  --blue-surface:       #1A1A1A;
+  --blue-surface-2:     #0A0A0A;
+  --blue-border:        #1E2939; /* rgb(30,41,57) */
+  --blue-fg:            #FFFFFF;
+  --blue-fg-muted:      #9CA1AF; /* rgb(153,161,175) */
+  --blue-fg-dim:        #6A7282; /* rgb(106,114,130) */
+  --blue-accent:        #155BF6; /* primary CTA */
+  --blue-accent-2:      #2B7FFF; /* simulate / active */
+  --blue-paper:         #F4F6FA;
+
+  /* Secondary accents (gate icons on circuit simulator) */
+  --hue-cyan:           #6FE6D8;
+  --hue-mint:           #5DD2CE;
+  --hue-purple:         #9C5FE8;
+  --hue-blue:           #2B7FFF;
+  --hue-violet:         #7C7CFF;
+  --hue-indigo:         #5A5FE8;
+  --hue-teal:           #3EE0C1;
+  --hue-lime:           #9CBF56;
+  --hue-orange:         #E59C3B;
+
+  /* ===== Type families ===== */
+  --font-mono:    'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+  --font-mono-2:  'DM Mono', 'JetBrains Mono', ui-monospace, monospace;
+  --font-mono-3:  'Fira Mono', 'JetBrains Mono', ui-monospace, monospace;
+  --font-sans:    'Inter', system-ui, -apple-system, sans-serif;
+  --font-display: 'Playfair Display', 'Iowan Old Style', Georgia, serif;
+
+  /* ===== Type scale (terminal / data-dense) ===== */
+  --fs-eyebrow: 9px;   /* JetBrains Mono — column labels    */
+  --fs-tag:     10px;  /* DM Mono — section eyebrows        */
+  --fs-meta:    11px;  /* JetBrains Mono — chip labels      */
+  --fs-body:    12px;
+  --fs-body-2:  14px;
+  --fs-h4:      15px;
+  --fs-h3:      18px;
+  --fs-h2:      24px;
+  --fs-h1:      32px;  /* readout numerals (Playfair)       */
+  --fs-display: 48px;  /* welcome hero (Inter)              */
+
+  /* ===== Geometry ===== */
+  --r-xs: 2px;
+  --r-sm: 4px;
+  --r-md: 8px;
+  --r-lg: 10px;
+  --r-xl: 14px;
+  --r-2xl: 16px;
+  --r-pill: 999px;
+
+  /* ===== Spacing scale ===== */
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 20px;
+  --s-6: 24px;
+  --s-7: 32px;
+  --s-8: 40px;
+  --s-9: 48px;
+  --s-10: 64px;
+  --s-11: 80px;
+
+  /* ===== Active semantic vars (default = AMBER) ===== */
+  --bg:           var(--amber-bg);
+  --bg-sunken:    var(--amber-bg-sunken);
+  --surface:      var(--amber-surface);
+  --surface-2:    var(--amber-surface-2);
+  --surface-3:    var(--amber-surface-3);
+  --border:       var(--amber-border);
+  --border-strong:var(--amber-border-strong);
+  --fg:           var(--amber-fg);
+  --fg-bright:    var(--amber-fg-bright);
+  --fg-muted:     var(--amber-fg-muted);
+  --fg-dim:       var(--amber-fg-dim);
+  --fg-ghost:     var(--amber-fg-ghost);
+  --accent:       var(--amber-accent);
+  --accent-hot:   var(--amber-accent-hot);
+  --accent-fill:  var(--amber-accent-fill);
+  --ok:           var(--amber-ok);
+  --ok-bg:        var(--amber-ok-bg);
+}
+
+:root[data-palette="blue"] {
+  --bg:           var(--blue-bg);
+  --bg-sunken:    var(--blue-surface-2);
+  --surface:      var(--blue-surface);
+  --surface-2:    var(--blue-surface);
+  --surface-3:    var(--blue-surface-2);
+  --border:       var(--blue-border);
+  --border-strong:var(--blue-border);
+  --fg:           var(--blue-fg);
+  --fg-bright:    var(--blue-fg);
+  --fg-muted:     var(--blue-fg-muted);
+  --fg-dim:       var(--blue-fg-dim);
+  --accent:       var(--blue-accent);
+  --accent-hot:   var(--blue-accent-2);
+}
+
+/* ===== Semantic type recipes ===== */
+
+.k-eyebrow {
+  font-family: var(--font-mono);
+  font-size:   var(--fs-eyebrow);
+  letter-spacing: 0.02em;
+  color: var(--fg-dim);
+  text-transform: none;
+}
+.k-tag {
+  font-family: var(--font-mono-2);
+  font-size:   var(--fs-tag);
+  letter-spacing: 0.06em;
+  color: var(--fg-muted);
+  text-transform: uppercase;
+}
+.k-section {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: var(--fs-tag);
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  text-transform: uppercase;
+}
+.k-comment {
+  font-family: var(--font-mono);
+  font-style: italic;
+  font-size: var(--fs-meta);
+  color: var(--fg-dim);
+}
+.k-meta {
+  font-family: var(--font-mono);
+  font-size: var(--fs-meta);
+  color: var(--fg-dim);
+}
+.k-label {
+  font-family: var(--font-sans);
+  font-size: var(--fs-meta);
+  color: var(--fg);
+}
+.k-helper {
+  font-family: var(--font-mono);
+  font-size: var(--fs-tag);
+  color: var(--fg-dim);
+}
+.k-numeral {
+  font-family: var(--font-display);
+  font-size: var(--fs-h1);
+  font-weight: 400;
+  color: var(--fg-bright);
+  line-height: 1;
+  letter-spacing: -0.01em;
+}
+.k-numeral-unit {
+  font-family: var(--font-mono-2);
+  font-size: var(--fs-body-2);
+  color: var(--fg-muted);
+}
+.k-h3 {
+  font-family: var(--font-sans);
+  font-size: var(--fs-h3);
+  line-height: 1.5;
+  color: var(--fg-bright);
+}
+.k-h2 {
+  font-family: var(--font-sans);
+  font-size: var(--fs-h2);
+  line-height: 1.33;
+  color: var(--fg-bright);
+}
+.k-h1 {
+  font-family: var(--font-sans);
+  font-size: var(--fs-display);
+  line-height: 1.05;
+  letter-spacing: 0.007em;
+  color: var(--fg-bright);
+}
+.k-mono-body {
+  font-family: var(--font-mono);
+  font-size: var(--fs-meta);
+  color: var(--fg);
+}
+.k-shell {
+  font-family: var(--font-mono);
+  font-size: var(--fs-meta);
+  color: var(--fg-dim);
+}
+.k-shell .k-shell__prompt { color: var(--accent); }
