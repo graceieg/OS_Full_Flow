@@ -27,17 +27,19 @@ export default function App() {
     // onAuthStateChange listener is registered.
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
-        setScreen(prev =>
-          prev === 'verify' || prev === 'signup' ? 'onboarding' : 'dashboard'
-        );
+        setScreen(prev => {
+          if (prev === 'landing') return prev; // stay on landing — let user click through
+          return prev === 'verify' || prev === 'signup' ? 'onboarding' : 'dashboard';
+        });
       }
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session) {
-        setScreen(prev =>
-          prev === 'verify' || prev === 'signup' ? 'onboarding' : 'dashboard'
-        );
+        setScreen(prev => {
+          if (prev === 'landing') return prev; // stay on landing
+          return prev === 'verify' || prev === 'signup' ? 'onboarding' : 'dashboard';
+        });
       }
       if (event === 'SIGNED_OUT') {
         setScreen('signin');
