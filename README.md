@@ -48,6 +48,17 @@ VITE_SUPABASE_ANON_KEY=your-anon-key
 npm run dev
 ```
 
+### Demo Login
+
+A test account is available to explore the app without signing up:
+
+| Field    | Value                     |
+|----------|---------------------------|
+| Email    | testkatmaios@gmail.com    |
+| Password | testtest                  |
+
+Or create your own account via the sign-up flow.
+
 
 ### Available Scripts
 
