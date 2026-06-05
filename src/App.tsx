@@ -9,9 +9,10 @@ import { Onboarding } from './components/screens/Onboarding';
 import { Dashboard } from './components/screens/Dashboard';
 import { Connect } from './components/screens/Connect';
 import { Operate } from './components/screens/Operate';
+import { Landing } from './components/screens/Landing';
 
 export default function App() {
-  const [screen, setScreen] = useState<ScreenId>('signup');
+  const [screen, setScreen] = useState<ScreenId>('landing');
   const [role, setRole] = useState<Role>('student');
   const [authFeel] = useState<AuthFeel>('warm');
   const [pendingEmail, setPendingEmail] = useState('');
@@ -48,6 +49,7 @@ export default function App() {
   return (
     <div className="app" data-auth={authFeel}>
       <div className="screens">
+        <Landing isActive={screen === 'landing'} onNavigate={setScreen} />
         <SignUp isActive={screen === 'signup'} role={role} onNavigate={setScreen} onRoleChange={setRole} onPendingEmail={setPendingEmail} />
         <SignIn isActive={screen === 'signin'} onNavigate={setScreen} onPendingEmail={setPendingEmail} />
         <Verify isActive={screen === 'verify'} email={pendingEmail} onNavigate={setScreen} />
