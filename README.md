@@ -1,5 +1,7 @@
 # CatMayOS — Katmai Computing
 
+**Live demo:** [catmayos.vercel.app](https://catmayos.vercel.app)
+
 Web app for booking and operating the Katmai 01 NMR spectrometer.
 
 ## Setup
