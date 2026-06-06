@@ -1,0 +1,2887 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Katmai Computing — Quantum Computing You Can Hold</title>
+<meta name="description" content="Pocket-scale quantum computing for the next generation of researchers and students. Incubated at Harvard Innovation Labs." />
+<meta name="theme-color" content="#07080c" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,300;1,9..144,400&family=Inter+Tight:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --bg: #07080c; --bg-soft: #0b0d14; --bg-card: #0e111a;
+    --surface: rgba(255,255,255,0.025); --surface-hi: rgba(255,255,255,0.05);
+    --border: rgba(255,255,255,0.08); --border-hi: rgba(255,255,255,0.18);
+    --text: #eef0f3; --text-dim: #9aa0ab; --text-faint: #5a606b;
+    --accent: #d9a066; --accent-hi: #e8b478; --accent-glow: rgba(217,160,102,0.35);
+    --cyan: #7fd1d6; --cyan-glow: rgba(127,209,214,0.3);
+    --nav-h: 68px; --max: 1280px;
+    --ease: cubic-bezier(.2,.7,.2,1);
+    --ease-out: cubic-bezier(.16,1,.3,1);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: 'Inter Tight', system-ui, sans-serif;
+    font-weight: 400; line-height: 1.5;
+    min-height: 100vh; overflow-x: hidden;
+    -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+    letter-spacing: -0.005em;
+    cursor: none;
+  }
+  @media (hover: none), (max-width: 768px) { body { cursor: auto; } }
+  ::selection { background: var(--accent); color: var(--bg); }
+  a { color: inherit; text-decoration: none; }
+  button { font-family: inherit; cursor: none; border: none; background: none; color: inherit; }
+  @media (hover: none), (max-width: 768px) { button { cursor: pointer; } }
+
+  /* Background */
+  .bg-canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+  .bg-gradient {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(1400px 900px at 75% -15%, rgba(217,160,102,0.13), transparent 55%),
+      radial-gradient(1000px 800px at 5% 115%, rgba(127,209,214,0.06), transparent 55%);
+  }
+  .bg-grain {
+    position: fixed; inset: 0; z-index: 1; pointer-events: none;
+    opacity: 0.22; mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.42 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  }
+  .bg-vignette {
+    position: fixed; inset: 0; z-index: 1; pointer-events: none;
+    background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.55) 100%);
+  }
+  .bg-grid {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: 0.3;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+    background-size: 80px 80px;
+    mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+    -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+  }
+  nav, main, footer, .scroll-progress, .cursor, .cursor-ring { position: relative; z-index: 2; }
+
+  /* Cursor */
+  .cursor {
+    position: fixed; top: 0; left: 0;
+    width: 8px; height: 8px; background: var(--text);
+    border-radius: 50%; pointer-events: none; z-index: 9999;
+    mix-blend-mode: difference; transform: translate(-50%, -50%);
+    transition: width .25s var(--ease), height .25s var(--ease);
+  }
+  .cursor-ring {
+    position: fixed; top: 0; left: 0;
+    width: 32px; height: 32px; border: 1px solid rgba(238,240,243,0.3);
+    border-radius: 50%; pointer-events: none; z-index: 9998;
+    transform: translate(-50%, -50%);
+    transition: width .3s var(--ease), height .3s var(--ease), border-color .3s var(--ease);
+  }
+  .cursor.hover { width: 4px; height: 4px; }
+  .cursor-ring.hover { width: 52px; height: 52px; border-color: var(--accent); }
+  @media (hover: none), (max-width: 768px) { .cursor, .cursor-ring { display: none; } }
+
+  /* Scroll progress */
+  .scroll-progress {
+    position: fixed; top: 0; left: 0;
+    height: 2px; width: 0%;
+    background: linear-gradient(90deg, var(--accent), var(--cyan));
+    z-index: 200;
+    box-shadow: 0 0 10px var(--accent-glow);
+  }
+
+  /* Nav */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    height: var(--nav-h);
+    display: flex; align-items: center; padding: 0 32px;
+    backdrop-filter: blur(16px) saturate(140%);
+    -webkit-backdrop-filter: blur(16px) saturate(140%);
+    background: rgba(7,8,12,0.6);
+    border-bottom: 1px solid var(--border);
+    z-index: 100;
+  }
+  .nav-inner { max-width: var(--max); width: 100%; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; }
+  .brand {
+    display: flex; align-items: center; gap: 10px;
+    font-family: 'Fraunces', serif; font-size: 19px; font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+  .brand svg { display: block; transition: transform .6s var(--ease); }
+  .brand:hover svg { transform: rotate(-8deg); }
+  .nav-menu { display: flex; align-items: center; gap: 32px; font-size: 13px; color: var(--text-dim); }
+  .nav-menu a { transition: color .3s var(--ease); position: relative; }
+  .nav-menu a:hover { color: var(--text); }
+  .nav-menu a::after {
+    content: ''; position: absolute; bottom: -6px; left: 0;
+    width: 0; height: 1px; background: var(--accent);
+    transition: width .35s var(--ease);
+  }
+  .nav-menu a:hover::after { width: 100%; }
+  @media (max-width: 768px) { .nav-menu { display: none; } }
+  .nav-cta {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 9px 18px 9px 13px;
+    font-size: 11.5px; font-weight: 500;
+    border: 1px solid var(--border-hi); border-radius: 999px;
+    background: rgba(255,255,255,0.03);
+    transition: all .35s var(--ease);
+    font-family: 'JetBrains Mono', monospace;
+    text-transform: uppercase; letter-spacing: 0.08em;
+  }
+  .nav-cta:hover { background: var(--text); color: var(--bg); border-color: var(--text); }
+  .nav-cta .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 10px var(--accent-glow);
+    animation: pulse 2.4s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.75); }
+  }
+
+  /* Hero */
+  .hero {
+    padding: calc(var(--nav-h) + 100px) 32px 80px;
+    max-width: var(--max); margin: 0 auto; text-align: center; position: relative;
+  }
+  .hero::before, .hero::after {
+    content: ''; position: absolute;
+    width: 24px; height: 24px;
+    border: 1px solid var(--border-hi); opacity: 0.6;
+  }
+  .hero::before { top: calc(var(--nav-h) + 40px); left: 24px; border-right: none; border-bottom: none; }
+  .hero::after { top: calc(var(--nav-h) + 40px); right: 24px; border-left: none; border-bottom: none; }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 7px 15px 7px 10px;
+    border: 1px solid var(--border); background: var(--surface);
+    border-radius: 999px;
+    font-size: 11.5px; color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.04em; margin-bottom: 40px;
+    text-transform: uppercase;
+    opacity: 0; transform: translateY(12px);
+    animation: rise .9s var(--ease-out) .1s forwards;
+  }
+  .hero-badge .tag {
+    font-size: 9.5px; font-weight: 600;
+    padding: 2.5px 7px; border-radius: 4px;
+    background: var(--accent); color: var(--bg);
+    letter-spacing: 0.08em;
+  }
+  .hero h1 {
+    font-family: 'Fraunces', serif; font-weight: 300;
+    font-size: clamp(42px, 7.6vw, 112px); line-height: 0.96;
+    letter-spacing: -0.035em; max-width: 14ch;
+    margin: 0 auto 32px;
+  }
+  .hero h1 em { font-style: italic; font-weight: 300; color: var(--accent); }
+  .hero h1 .word {
+    display: inline-block;
+    opacity: 0; transform: translateY(32px);
+    animation: rise 1s var(--ease-out) forwards;
+  }
+  .hero-sub {
+    font-size: clamp(15px, 1.4vw, 18px);
+    color: var(--text-dim); max-width: 52ch;
+    margin: 0 auto 48px;
+    opacity: 0; transform: translateY(20px);
+    animation: rise 1s var(--ease-out) .9s forwards;
+  }
+  .hero-sub a {
+    color: var(--text);
+    border-bottom: 1px solid var(--border-hi);
+    transition: border-color .3s var(--ease), color .3s var(--ease);
+  }
+  .hero-sub a:hover { border-color: var(--accent); color: var(--accent); }
+  .hero-ctas {
+    display: flex; justify-content: center; gap: 14px; flex-wrap: wrap;
+    opacity: 0; transform: translateY(20px);
+    animation: rise 1s var(--ease-out) 1.05s forwards;
+  }
+  .btn {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 14px 26px; border-radius: 999px;
+    font-size: 13.5px; font-weight: 500;
+    transition: all .4s var(--ease);
+    border: 1px solid transparent;
+    position: relative; overflow: hidden;
+  }
+  .btn-primary { background: var(--text); color: var(--bg); }
+  .btn-primary::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(120deg, var(--accent), var(--accent-hi));
+    transform: translateX(-101%); transition: transform .5s var(--ease); z-index: 0;
+  }
+  .btn-primary > * { position: relative; z-index: 1; }
+  .btn-primary:hover::before { transform: translateX(0); }
+  .btn-primary:hover { color: var(--bg); transform: translateY(-2px); box-shadow: 0 14px 40px var(--accent-glow); }
+  .btn-secondary { border-color: var(--border-hi); color: var(--text); background: var(--surface); }
+  .btn-secondary:hover { background: var(--surface-hi); border-color: var(--text); transform: translateY(-2px); }
+  .btn svg { transition: transform .4s var(--ease); }
+  .btn:hover svg { transform: translateX(4px); }
+  .hero-meta {
+    display: flex; justify-content: center; gap: 48px; margin-top: 72px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; color: var(--text-faint);
+    text-transform: uppercase; letter-spacing: 0.15em;
+    opacity: 0; animation: rise 1s var(--ease-out) 1.3s forwards;
+    flex-wrap: wrap;
+  }
+  .hero-meta span { display: flex; align-items: center; gap: 10px; }
+  .hero-meta .num {
+    font-size: 22px; color: var(--text);
+    font-family: 'Fraunces', serif; font-weight: 300;
+    letter-spacing: -0.02em; text-transform: none;
+  }
+  @keyframes rise { to { opacity: 1; transform: translateY(0); } }
+
+  /* Device */
+  .device-wrap {
+    max-width: 1080px; margin: 40px auto 140px;
+    padding: 0 32px; perspective: 1800px;
+    opacity: 0; transform: translateY(60px);
+  }
+  .device-wrap.in-view { animation: rise 1.4s var(--ease-out) forwards; }
+  .device-3d {
+    aspect-ratio: 16/10.5; position: relative;
+    transform-style: preserve-3d;
+    transform: rotateX(10deg) rotateY(-8deg);
+    transition: transform 1s var(--ease);
+  }
+  .device-3d:hover { transform: rotateX(6deg) rotateY(-4deg); }
+  .device-frame {
+    position: absolute; inset: 0; border-radius: 28px;
+    background: linear-gradient(160deg, #1a1d28 0%, #0e1118 50%, #1a1d28 100%);
+    border: 1px solid var(--border-hi); overflow: hidden;
+    box-shadow:
+      0 80px 160px rgba(0,0,0,0.7),
+      0 40px 80px rgba(217,160,102,0.08),
+      inset 0 1px 0 rgba(255,255,255,0.15),
+      inset 0 -1px 0 rgba(0,0,0,0.5);
+  }
+  .device-frame::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(125deg, rgba(255,255,255,0.12) 0%, transparent 35%, transparent 65%, rgba(255,255,255,0.04) 100%);
+    border-radius: inherit; pointer-events: none;
+  }
+  .device-bezel {
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 40px; display: flex; align-items: center; justify-content: space-between;
+    padding: 0 22px; z-index: 3;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px; color: var(--text-faint);
+    letter-spacing: 0.2em; text-transform: uppercase;
+  }
+  .device-bezel-dots { display: flex; gap: 6px; }
+  .device-bezel-dots span {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: var(--text-faint); opacity: 0.4;
+  }
+  .device-bezel-dots span:first-child {
+    background: var(--accent); opacity: 1;
+    box-shadow: 0 0 6px var(--accent-glow);
+  }
+  .device-screen {
+    position: absolute; top: 40px; bottom: 80px; left: 22px; right: 22px;
+    border-radius: 14px;
+    background: radial-gradient(circle at 30% 20%, #12151e, #05060a);
+    border: 1px solid rgba(255,255,255,0.08);
+    overflow: hidden;
+    box-shadow: inset 0 0 40px rgba(0,0,0,0.6), inset 0 0 0 1px rgba(0,0,0,0.5);
+  }
+  .screen-content { position: absolute; inset: 0; padding: 18px 22px; }
+  .screen-head {
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px; color: var(--text-dim);
+    letter-spacing: 0.1em; margin-bottom: 12px;
+  }
+  .screen-head .live-dot { display: inline-flex; align-items: center; gap: 6px; color: var(--accent); }
+  .screen-head .live-dot::before {
+    content: ''; width: 5px; height: 5px; border-radius: 50%;
+    background: var(--accent); box-shadow: 0 0 8px var(--accent);
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+  .screen-waveform { width: 100%; height: calc(100% - 50px); }
+  .screen-readings {
+    position: absolute; bottom: 14px; left: 22px; right: 22px;
+    display: flex; justify-content: space-between;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px; color: var(--text-faint); letter-spacing: 0.1em;
+  }
+  .screen-readings span strong { color: var(--cyan); font-weight: 500; }
+  .device-controls {
+    position: absolute; bottom: 14px; left: 0; right: 0; height: 56px;
+    display: flex; justify-content: center; gap: 20px; align-items: center; z-index: 3;
+  }
+  .dial {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: radial-gradient(circle at 30% 25%, #3a3e4a, #141620 70%);
+    border: 1px solid rgba(255,255,255,0.12);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.15),
+      inset 0 -2px 4px rgba(0,0,0,0.5),
+      0 2px 4px rgba(0,0,0,0.4);
+    position: relative;
+  }
+  .dial::after {
+    content: ''; position: absolute; top: 4px; left: 50%;
+    width: 2px; height: 8px;
+    background: var(--accent); border-radius: 1px;
+    transform: translateX(-50%); box-shadow: 0 0 4px var(--accent-glow);
+  }
+  .dial:nth-child(2)::after { transform: translateX(-50%) rotate(45deg); transform-origin: 50% 14px; }
+  .dial:nth-child(3)::after { transform: translateX(-50%) rotate(-30deg); transform-origin: 50% 14px; }
+  .dial:nth-child(4)::after { transform: translateX(-50%) rotate(90deg); transform-origin: 50% 14px; }
+  .device-annotations { position: absolute; inset: 0; pointer-events: none; z-index: 5; }
+  .annotation {
+    position: absolute;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; color: var(--text-dim);
+    text-transform: uppercase; letter-spacing: 0.1em;
+    display: flex; align-items: center; gap: 8px;
+    opacity: 0; transform: translateX(-20px);
+  }
+  .device-wrap.in-view .annotation { animation: fadeInLeft 0.8s var(--ease-out) forwards; }
+  .annotation::before { content: ''; width: 20px; height: 1px; background: var(--accent); }
+  .annotation-1 { top: 12%; left: -14%; animation-delay: 1s; }
+  .annotation-2 { top: 48%; left: -16%; animation-delay: 1.3s; }
+  .annotation-3 { top: 30%; right: -14%; animation-delay: 1.1s; flex-direction: row-reverse; }
+  .annotation-3::before { order: 2; }
+  .annotation-4 { bottom: 10%; right: -12%; animation-delay: 1.4s; flex-direction: row-reverse; }
+  .annotation-4::before { order: 2; }
+  @keyframes fadeInLeft { to { opacity: 1; transform: translateX(0); } }
+  @media (max-width: 900px) {
+    .annotation { display: none; }
+    .device-3d { transform: rotateX(4deg) rotateY(-2deg); }
+  }
+
+  /* Sections */
+  .section {
+    max-width: var(--max); margin: 0 auto;
+    padding: 140px 32px; position: relative;
+  }
+  .section-head { margin-bottom: 72px; max-width: 760px; }
+  .section-head.center { margin-left: auto; margin-right: auto; text-align: center; }
+  .section-eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; text-transform: uppercase;
+    letter-spacing: 0.2em; color: var(--accent);
+    margin-bottom: 20px;
+    display: inline-flex; align-items: center; gap: 12px;
+  }
+  .section-eyebrow::before { content: ''; width: 28px; height: 1px; background: var(--accent); }
+  .section-title {
+    font-family: 'Fraunces', serif; font-weight: 300;
+    font-size: clamp(32px, 5vw, 60px); line-height: 1.04;
+    letter-spacing: -0.03em;
+  }
+  .section-title em { font-style: italic; color: var(--accent); }
+
+  /* Bento */
+  .bento {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    grid-auto-rows: 200px; gap: 12px;
+  }
+  .bento-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border); border-radius: 20px;
+    padding: 28px; display: flex; flex-direction: column;
+    position: relative; overflow: hidden;
+    transition: all .5s var(--ease);
+  }
+  .bento-card:hover {
+    border-color: var(--border-hi);
+    transform: translateY(-2px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+  }
+  .bento-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(217,160,102,0.4), transparent);
+    opacity: 0; transition: opacity .4s var(--ease);
+  }
+  .bento-card:hover::before { opacity: 1; }
+  .bento-num {
+    position: absolute; top: 20px; right: 24px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; color: var(--text-faint); letter-spacing: 0.15em;
+  }
+  .bento-icon {
+    width: 40px; height: 40px;
+    color: var(--text-dim); margin-bottom: 18px;
+    transition: color .4s var(--ease), transform .4s var(--ease);
+  }
+  .bento-card:hover .bento-icon { color: var(--accent); transform: scale(1.08); }
+  .bento-card h3 {
+    font-family: 'Fraunces', serif; font-weight: 400;
+    font-size: 21px; line-height: 1.15;
+    letter-spacing: -0.01em; margin-bottom: 10px;
+  }
+  .bento-card p {
+    font-size: 13.5px; color: var(--text-dim);
+    line-height: 1.55; margin-top: auto;
+  }
+  .b-lg { grid-column: span 3; grid-row: span 2; }
+  .b-md { grid-column: span 3; grid-row: span 1; }
+  .b-sm { grid-column: span 2; grid-row: span 1; }
+  .bento-hero {
+    background:
+      radial-gradient(circle at 80% 20%, rgba(217,160,102,0.15), transparent 50%),
+      linear-gradient(180deg, var(--bg-card), #080a10);
+  }
+  .bento-hero-viz {
+    position: absolute; top: 20px; right: -40px;
+    width: 260px; height: 260px; opacity: 0.9; pointer-events: none;
+  }
+  .bento-hero h3 { font-size: 28px; max-width: 10ch; margin-top: 6px; }
+  @media (max-width: 900px) {
+    .bento { grid-template-columns: repeat(2, 1fr); grid-auto-rows: auto; }
+    .b-lg, .b-md, .b-sm { grid-column: span 2; grid-row: auto; }
+    .bento-card { min-height: 220px; }
+    .bento-hero-viz { display: none; }
+  }
+
+  /* Demo */
+  .demo-section {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 80px; align-items: center;
+  }
+  @media (max-width: 900px) { .demo-section { grid-template-columns: 1fr; gap: 40px; } }
+  .demo-text h2 { margin-bottom: 24px; }
+  .demo-text p {
+    color: var(--text-dim); font-size: 16px; line-height: 1.65;
+    margin-bottom: 24px; max-width: 48ch;
+  }
+  .demo-states { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 32px; }
+  .state-btn {
+    padding: 9px 16px; border: 1px solid var(--border-hi);
+    border-radius: 8px; background: var(--surface);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px; color: var(--text);
+    transition: all .3s var(--ease); font-weight: 500;
+  }
+  .state-btn:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-1px); }
+  .state-btn.active { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+  .bloch-wrap {
+    aspect-ratio: 1; max-width: 460px;
+    margin: 0 auto; position: relative;
+  }
+  .bloch-wrap::before {
+    content: ''; position: absolute; inset: -20px;
+    border: 1px solid var(--border); border-radius: 50%; opacity: 0.4;
+  }
+  .bloch-svg { width: 100%; height: 100%; }
+  .bloch-label {
+    position: absolute;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; color: var(--text-dim); letter-spacing: 0.05em;
+  }
+  .label-0 { top: 2%; left: 50%; transform: translateX(-50%); color: var(--cyan); }
+  .label-1 { bottom: 2%; left: 50%; transform: translateX(-50%); color: var(--accent); }
+  .label-x { right: 2%; top: 50%; transform: translateY(-50%); }
+  .label-y { left: 2%; top: 50%; transform: translateY(-50%); }
+
+  /* Specs */
+  .specs-terminal {
+    background: #0a0c12; border: 1px solid var(--border);
+    border-radius: 20px; overflow: hidden;
+    box-shadow: 0 40px 80px rgba(0,0,0,0.4);
+    max-width: 980px; margin: 0 auto;
+  }
+  .terminal-head {
+    padding: 14px 20px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 10px;
+    background: rgba(255,255,255,0.02);
+  }
+  .terminal-head .dots { display: flex; gap: 6px; }
+  .terminal-head .dots span { width: 11px; height: 11px; border-radius: 50%; }
+  .terminal-head .dots span:nth-child(1) { background: #ff5f57; }
+  .terminal-head .dots span:nth-child(2) { background: #febc2e; }
+  .terminal-head .dots span:nth-child(3) { background: #28c840; }
+  .terminal-head .title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; color: var(--text-faint); margin-left: 10px;
+  }
+  .terminal-body {
+    padding: 28px 32px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13.5px; line-height: 1.9;
+    color: var(--text-dim);
+    white-space: pre-wrap;
+  }
+  .terminal-body .cmd { color: var(--cyan); }
+  .terminal-body .prompt { color: var(--accent); }
+  .terminal-body .val { color: var(--text); }
+  .terminal-body .key { color: var(--text-dim); }
+  .terminal-body .comment { color: var(--text-faint); font-style: italic; }
+  .specs-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 1px; background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 16px; overflow: hidden;
+    margin-top: 32px;
+  }
+  .spec-cell { background: var(--bg); padding: 24px 20px; display: flex; flex-direction: column; gap: 4px; }
+  .spec-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; color: var(--text-faint);
+    text-transform: uppercase; letter-spacing: 0.15em;
+  }
+  .spec-value {
+    font-family: 'Fraunces', serif; font-weight: 400;
+    font-size: 28px; color: var(--text); letter-spacing: -0.02em;
+  }
+  .spec-value .unit {
+    font-size: 13px; color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+    margin-left: 4px; letter-spacing: 0;
+  }
+  @media (max-width: 900px) { .specs-grid { grid-template-columns: repeat(2, 1fr); } }
+
+  /* Credentials */
+  .credentials {
+    padding: 60px 32px;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    text-align: center; background: rgba(0,0,0,0.2);
+  }
+  .credentials-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; text-transform: uppercase;
+    letter-spacing: 0.25em; color: var(--text-faint); margin-bottom: 32px;
+  }
+  .credentials-list {
+    display: flex; justify-content: center; gap: 64px; flex-wrap: wrap; align-items: center;
+  }
+  .credential {
+    font-family: 'Fraunces', serif; font-weight: 400;
+    font-size: 22px; color: var(--text-dim);
+    letter-spacing: -0.01em;
+    transition: color .3s var(--ease);
+  }
+  .credential:hover { color: var(--text); }
+  .credential small {
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px; color: var(--text-faint);
+    text-transform: uppercase; letter-spacing: 0.2em;
+    margin-top: 4px; font-weight: 400;
+  }
+
+  /* Timeline */
+  .timeline { max-width: 880px; margin: 0 auto; position: relative; }
+  .timeline::before {
+    content: ''; position: absolute; left: 50%;
+    top: 0; bottom: 0; width: 1px;
+    background: linear-gradient(180deg, transparent, var(--border-hi), transparent);
+  }
+  .timeline-item {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 60px; margin-bottom: 60px; position: relative;
+  }
+  .timeline-item:last-child { margin-bottom: 0; }
+  .timeline-item::before {
+    content: ''; position: absolute; top: 24px; left: 50%;
+    width: 12px; height: 12px; border-radius: 50%;
+    background: var(--bg); border: 2px solid var(--accent);
+    transform: translateX(-50%); z-index: 2;
+    box-shadow: 0 0 16px var(--accent-glow);
+  }
+  .timeline-item.done::before { background: var(--accent); }
+  .timeline-item.future::before { border-color: var(--text-faint); box-shadow: none; }
+  .timeline-content {
+    padding: 18px 24px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    transition: all .4s var(--ease);
+  }
+  .timeline-content:hover { border-color: var(--border-hi); transform: translateY(-2px); }
+  .timeline-date {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; color: var(--accent);
+    letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 6px;
+  }
+  .timeline-item.future .timeline-date { color: var(--text-faint); }
+  .timeline-item.done .timeline-date { color: var(--cyan); }
+  .timeline-content h4 {
+    font-family: 'Fraunces', serif; font-weight: 400;
+    font-size: 18px; letter-spacing: -0.01em; margin-bottom: 6px;
+  }
+  .timeline-content p { font-size: 13px; color: var(--text-dim); line-height: 1.5; }
+  .timeline-item:nth-child(odd) .timeline-content { grid-column: 1; text-align: right; }
+  .timeline-item:nth-child(even) .timeline-content { grid-column: 2; }
+  @media (max-width: 700px) {
+    .timeline::before { left: 12px; }
+    .timeline-item { grid-template-columns: 1fr; gap: 0; padding-left: 40px; }
+    .timeline-item::before { left: 12px; }
+    .timeline-item:nth-child(odd) .timeline-content,
+    .timeline-item:nth-child(even) .timeline-content {
+      grid-column: 1; text-align: left;
+    }
+  }
+
+  /* Closer */
+  .closer {
+    max-width: var(--max); margin: 0 auto;
+    padding: 160px 32px 140px; text-align: center; position: relative;
+  }
+  .closer-quote {
+    font-family: 'Fraunces', serif; font-weight: 300; font-style: italic;
+    font-size: clamp(30px, 4.5vw, 54px); line-height: 1.2;
+    letter-spacing: -0.02em; max-width: 24ch; margin: 0 auto 48px;
+  }
+  .closer-quote span { color: var(--accent); font-style: normal; }
+  .newsletter {
+    display: flex; gap: 0;
+    max-width: 440px; margin: 40px auto 0;
+    border: 1px solid var(--border-hi);
+    border-radius: 999px; padding: 5px;
+    background: var(--surface);
+    transition: border-color .3s var(--ease);
+  }
+  .newsletter:focus-within { border-color: var(--accent); }
+  .newsletter input {
+    flex: 1; background: transparent; border: none; outline: none;
+    padding: 10px 18px; font-family: inherit;
+    font-size: 14px; color: var(--text); cursor: none;
+  }
+  @media (hover: none), (max-width: 768px) { .newsletter input { cursor: text; } }
+  .newsletter input::placeholder { color: var(--text-faint); }
+  .newsletter button {
+    padding: 10px 22px; border-radius: 999px;
+    background: var(--text); color: var(--bg);
+    font-size: 13.5px; font-weight: 500;
+    transition: background .3s var(--ease);
+  }
+  .newsletter button:hover { background: var(--accent); }
+
+  /* Footer */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 64px 32px 40px;
+    background: rgba(0,0,0,0.35);
+  }
+  .footer-top {
+    max-width: var(--max); margin: 0 auto 48px;
+    display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px;
+  }
+  .footer-brand .footer-logo {
+    display: flex; align-items: center; gap: 10px;
+    font-family: 'Fraunces', serif; font-size: 19px; font-weight: 500;
+    margin-bottom: 16px;
+  }
+  .footer-brand p {
+    font-size: 13px; color: var(--text-dim);
+    max-width: 32ch; line-height: 1.6;
+  }
+  .footer-col h5 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; text-transform: uppercase;
+    letter-spacing: 0.15em; color: var(--text-faint);
+    margin-bottom: 18px; font-weight: 500;
+  }
+  .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .footer-col li a {
+    font-size: 13.5px; color: var(--text-dim);
+    transition: color .3s var(--ease);
+  }
+  .footer-col li a:hover { color: var(--text); }
+  .footer-bottom {
+    max-width: var(--max); margin: 0 auto;
+    padding-top: 28px; border-top: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; color: var(--text-faint);
+    letter-spacing: 0.05em; flex-wrap: wrap; gap: 16px;
+  }
+  .footer-bottom .loc { display: flex; align-items: center; gap: 10px; }
+  .loc-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--cyan); box-shadow: 0 0 10px var(--cyan);
+    animation: pulse 2.4s ease-in-out infinite;
+  }
+  @media (max-width: 800px) {
+    .footer-top { grid-template-columns: 1fr 1fr; }
+    .footer-brand { grid-column: span 2; }
+  }
+
+  /* Scroll reveal */
+  .reveal { opacity: 0; transform: translateY(40px); transition: opacity 1s var(--ease-out), transform 1s var(--ease-out); }
+  .reveal.in-view { opacity: 1; transform: translateY(0); }
+  .reveal-stagger > * {
+    opacity: 0; transform: translateY(30px);
+    transition: opacity .8s var(--ease-out), transform .8s var(--ease-out);
+  }
+  .reveal-stagger.in-view > * { opacity: 1; transform: translateY(0); }
+  .reveal-stagger.in-view > *:nth-child(1) { transition-delay: 0s; }
+  .reveal-stagger.in-view > *:nth-child(2) { transition-delay: .08s; }
+  .reveal-stagger.in-view > *:nth-child(3) { transition-delay: .16s; }
+  .reveal-stagger.in-view > *:nth-child(4) { transition-delay: .24s; }
+  .reveal-stagger.in-view > *:nth-child(5) { transition-delay: .32s; }
+  .reveal-stagger.in-view > *:nth-child(6) { transition-delay: .40s; }
+  .reveal-stagger.in-view > *:nth-child(7) { transition-delay: .48s; }
+
+  @media (max-width: 600px) {
+    nav { padding: 0 20px; }
+    .hero { padding: calc(var(--nav-h) + 60px) 20px 60px; }
+    .hero::before, .hero::after { display: none; }
+    .section { padding: 80px 20px; }
+    .closer { padding: 100px 20px 80px; }
+    .hero-ctas { flex-direction: column; width: 100%; }
+    .btn { justify-content: center; }
+    .hero-meta { gap: 24px; }
+    .credentials-list { gap: 32px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: .01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: .01ms !important;
+    }
+    .reveal, .reveal-stagger > * { opacity: 1; transform: none; }
+  }
+
+  /* ===== Active nav ===== */
+  .nav-menu a.active { color: var(--text); }
+  .nav-menu a.active::after { width: 100%; }
+
+  /* ===== Marquee strip ===== */
+  .marquee {
+    overflow: hidden;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 28px 0;
+    background: rgba(0,0,0,0.25);
+    position: relative;
+  }
+  .marquee::before, .marquee::after {
+    content: '';
+    position: absolute; top: 0; bottom: 0; width: 200px;
+    z-index: 2; pointer-events: none;
+  }
+  .marquee::before { left: 0; background: linear-gradient(90deg, var(--bg), transparent); }
+  .marquee::after { right: 0; background: linear-gradient(-90deg, var(--bg), transparent); }
+  .marquee-track {
+    display: flex; gap: 64px;
+    width: max-content;
+    animation: marquee-scroll 55s linear infinite;
+    align-items: center;
+  }
+  .marquee-item {
+    display: flex; align-items: center; gap: 16px;
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 24px;
+    color: var(--text-dim);
+    white-space: nowrap;
+    letter-spacing: -0.01em;
+  }
+  .marquee-item::after {
+    content: '✦';
+    font-size: 12px; color: var(--accent); font-style: normal;
+  }
+  .marquee-item:last-child::after { display: none; }
+  @keyframes marquee-scroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  /* ===== Personas (Made For) ===== */
+  .personas {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+  @media (max-width: 900px) { .personas { grid-template-columns: 1fr; } }
+  .persona {
+    padding: 36px 32px 32px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    position: relative; overflow: hidden;
+    transition: all .5s var(--ease);
+    min-height: 380px;
+    display: flex; flex-direction: column;
+  }
+  .persona:hover {
+    border-color: var(--border-hi);
+    transform: translateY(-4px);
+    box-shadow: 0 30px 60px rgba(0,0,0,0.4);
+  }
+  .persona-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; color: var(--text-faint);
+    letter-spacing: 0.2em; margin-bottom: 20px;
+  }
+  .persona-icon {
+    width: 56px; height: 56px;
+    margin-bottom: 20px;
+    color: var(--accent);
+  }
+  .persona h3 {
+    font-family: 'Fraunces', serif; font-weight: 400;
+    font-size: 26px; letter-spacing: -0.02em;
+    margin-bottom: 12px;
+  }
+  .persona h3 em { font-style: italic; color: var(--accent); }
+  .persona p {
+    font-size: 14px; color: var(--text-dim);
+    line-height: 1.6; margin-bottom: 24px;
+  }
+  .persona-tags {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    margin-top: auto;
+  }
+  .persona-tag {
+    padding: 5px 12px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    color: var(--text-dim);
+    letter-spacing: 0.05em;
+  }
+  .persona-corner {
+    position: absolute; top: 0; right: 0;
+    width: 120px; height: 120px;
+    opacity: 0.08;
+    color: var(--accent);
+    pointer-events: none;
+    transition: opacity .5s var(--ease);
+  }
+  .persona:hover .persona-corner { opacity: 0.18; }
+
+  /* ===== Comparison table ===== */
+  .compare {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr 1fr 1fr;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    overflow: hidden;
+    background: var(--bg-card);
+  }
+  .compare-row {
+    display: contents;
+  }
+  .compare > * {
+    padding: 18px 22px;
+    border-bottom: 1px solid var(--border);
+    font-size: 13.5px;
+    display: flex; align-items: center;
+    min-height: 56px;
+  }
+  .compare > *:nth-last-child(-n+4) { border-bottom: none; }
+  .compare-label {
+    color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .compare-header {
+    background: rgba(255,255,255,0.02);
+    font-family: 'Fraunces', serif;
+    font-size: 16px; font-weight: 400;
+    color: var(--text-dim);
+    border-bottom: 1px solid var(--border-hi) !important;
+    justify-content: center;
+    letter-spacing: -0.01em;
+  }
+  .compare-header.highlight {
+    background: rgba(217,160,102,0.08);
+    color: var(--accent);
+    position: relative;
+  }
+  .compare-header.highlight::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: var(--accent);
+  }
+  .compare-cell { color: var(--text); justify-content: center; text-align: center; }
+  .compare-cell.dim { color: var(--text-faint); }
+  .compare-cell.highlight {
+    background: rgba(217,160,102,0.05);
+    color: var(--accent-hi);
+    font-weight: 500;
+  }
+  .compare-cell svg { color: var(--accent); }
+  .compare-cell.no svg { color: var(--text-faint); }
+  @media (max-width: 800px) {
+    .compare { grid-template-columns: 1fr; }
+    .compare > * {
+      border-bottom: 1px solid var(--border);
+      text-align: left; justify-content: flex-start;
+    }
+    .compare-header { font-size: 14px; }
+    .compare-label::after { content: ':'; margin-right: 6px; }
+  }
+
+  /* ===== Testimonials ===== */
+  .testimonials {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+  @media (max-width: 900px) { .testimonials { grid-template-columns: 1fr; } }
+  .testimonial {
+    padding: 40px 32px 32px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    position: relative;
+    transition: all .5s var(--ease);
+    display: flex; flex-direction: column;
+  }
+  .testimonial:hover {
+    border-color: var(--border-hi);
+    transform: translateY(-3px);
+  }
+  .testimonial-mark {
+    font-family: 'Fraunces', serif;
+    font-size: 72px; line-height: 0.5;
+    color: var(--accent);
+    opacity: 0.4;
+    margin-bottom: 8px;
+    font-style: italic;
+  }
+  .testimonial-quote {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 300;
+    font-size: 19px; line-height: 1.45;
+    letter-spacing: -0.01em;
+    color: var(--text);
+    margin-bottom: 28px;
+    flex: 1;
+  }
+  .testimonial-author {
+    display: flex; align-items: center; gap: 14px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+  }
+  .testimonial-avatar {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), #8d6441);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Fraunces', serif;
+    font-weight: 500; font-size: 15px;
+    color: var(--bg);
+    flex-shrink: 0;
+  }
+  .testimonial-name {
+    font-size: 13.5px; color: var(--text);
+    font-weight: 500;
+  }
+  .testimonial-role {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    color: var(--text-faint);
+    letter-spacing: 0.05em;
+    margin-top: 2px;
+  }
+
+  /* ===== FAQ accordion ===== */
+  .faq { max-width: 860px; margin: 0 auto; }
+  .faq-item {
+    border-bottom: 1px solid var(--border);
+    transition: all .4s var(--ease);
+  }
+  .faq-item:first-child { border-top: 1px solid var(--border); }
+  .faq-q {
+    width: 100%;
+    padding: 26px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-align: left;
+    font-family: 'Fraunces', serif;
+    font-weight: 400;
+    font-size: 20px;
+    letter-spacing: -0.01em;
+    color: var(--text);
+    transition: color .3s var(--ease);
+    gap: 24px;
+  }
+  .faq-q:hover { color: var(--accent); }
+  .faq-icon {
+    width: 28px; height: 28px;
+    border: 1px solid var(--border-hi);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: all .4s var(--ease);
+    position: relative;
+  }
+  .faq-icon::before, .faq-icon::after {
+    content: '';
+    position: absolute;
+    background: currentColor;
+    transition: transform .4s var(--ease);
+  }
+  .faq-icon::before { width: 10px; height: 1px; }
+  .faq-icon::after { width: 1px; height: 10px; }
+  .faq-item.open .faq-icon {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--bg);
+  }
+  .faq-item.open .faq-icon::after { transform: rotate(90deg); }
+  .faq-a {
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height .5s var(--ease), padding .5s var(--ease);
+  }
+  .faq-a-inner {
+    padding: 0 0 26px;
+    color: var(--text-dim);
+    font-size: 15px;
+    line-height: 1.65;
+    max-width: 60ch;
+  }
+  .faq-item.open .faq-a { max-height: 400px; }
+
+  /* ===== Scroll to top ===== */
+  .to-top {
+    position: fixed; bottom: 28px; right: 28px;
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    background: var(--bg-card);
+    border: 1px solid var(--border-hi);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; transform: translateY(20px) scale(0.8);
+    transition: all .4s var(--ease);
+    z-index: 99;
+    pointer-events: none;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+  .to-top.visible {
+    opacity: 1; transform: translateY(0) scale(1);
+    pointer-events: auto;
+  }
+  .to-top:hover {
+    background: var(--text); color: var(--bg);
+    border-color: var(--text);
+  }
+  .to-top svg.ring {
+    position: absolute; inset: 0;
+    transform: rotate(-90deg);
+  }
+  .to-top .ring-track {
+    fill: none;
+    stroke: var(--border);
+    stroke-width: 1.5;
+  }
+  .to-top .ring-fill {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    transition: stroke-dashoffset .15s linear;
+  }
+  .to-top-arrow { z-index: 2; transition: transform .3s var(--ease); }
+  .to-top:hover .to-top-arrow { transform: translateY(-3px); }
+  @media (max-width: 600px) {
+    .to-top { bottom: 18px; right: 18px; width: 44px; height: 44px; }
+  }
+
+  /* ===== Counter ===== */
+  .counter { display: inline-block; }
+
+  /* ===== Bloch hints ===== */
+  .bloch-wrap.dragging { cursor: grabbing; }
+  .bloch-hint {
+    position: absolute; bottom: -28px; left: 0; right: 0;
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; color: var(--text-faint);
+    letter-spacing: 0.15em; text-transform: uppercase;
+    opacity: 0.7;
+  }
+  .bloch-svg { cursor: grab; touch-action: none; }
+  .bloch-svg:active { cursor: grabbing; }
+
+  /* ===== Extras on hero ===== */
+  .hero-scroll-indicator {
+    position: absolute; bottom: 28px; left: 50%;
+    transform: translateX(-50%);
+    display: flex; flex-direction: column; align-items: center;
+    gap: 10px;
+    opacity: 0;
+    animation: rise 1s var(--ease-out) 1.6s forwards;
+  }
+  .hero-scroll-indicator .line {
+    width: 1px; height: 40px;
+    background: linear-gradient(180deg, transparent, var(--text-faint));
+    overflow: hidden; position: relative;
+  }
+  .hero-scroll-indicator .line::after {
+    content: '';
+    position: absolute;
+    top: -10px; left: 0; right: 0;
+    height: 10px;
+    background: var(--accent);
+    animation: scroll-dot 2.4s ease-in-out infinite;
+  }
+  @keyframes scroll-dot {
+    0% { top: -10px; }
+    100% { top: 40px; }
+  }
+  .hero-scroll-indicator span {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px;
+    color: var(--text-faint);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+  @media (max-width: 768px) { .hero-scroll-indicator { display: none; } }
+
+  /* ===================================================================
+     POLISH LAYER — loader, shimmer, tilt, live equation, refinements
+  =================================================================== */
+
+  /* ---------- Page loader ---------- */
+  .page-loader {
+    position: fixed; inset: 0; z-index: 10000;
+    background: var(--bg);
+    display: flex; align-items: center; justify-content: center;
+    transition: opacity .8s var(--ease), visibility .8s var(--ease);
+  }
+  .page-loader.done { opacity: 0; visibility: hidden; pointer-events: none; }
+  .page-loader-content {
+    display: flex; flex-direction: column; align-items: center; gap: 26px;
+  }
+  .page-loader-logo {
+    display: flex; align-items: center; gap: 14px;
+    font-family: 'Fraunces', serif;
+    font-size: 30px; font-weight: 500;
+    letter-spacing: -0.01em;
+    opacity: 0;
+    animation: loader-logo-in .8s var(--ease-out) .1s forwards;
+  }
+  @keyframes loader-logo-in {
+    0% { opacity: 0; transform: translateY(8px); letter-spacing: 0.1em; }
+    100% { opacity: 1; transform: translateY(0); letter-spacing: -0.01em; }
+  }
+  .page-loader-bar {
+    width: 200px; height: 1px;
+    background: var(--border);
+    position: relative;
+    overflow: hidden;
+    opacity: 0;
+    animation: fade-in .5s ease .3s forwards;
+  }
+  .page-loader-bar::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    transform: translateX(-100%);
+    animation: loader-sweep 1.2s ease-in-out infinite;
+  }
+  @keyframes loader-sweep { to { transform: translateX(200%); } }
+  @keyframes fade-in { to { opacity: 1; } }
+  .page-loader-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text-faint);
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    opacity: 0;
+    animation: fade-in .5s ease .5s forwards;
+  }
+
+  /* ---------- Shimmer on accent ems ---------- */
+  .section-title em,
+  .hero h1 em,
+  .closer-quote span {
+    background: linear-gradient(
+      100deg,
+      var(--accent-hi) 0%,
+      var(--accent) 35%,
+      #ffeacf 48%,
+      #ffffff 52%,
+      var(--accent) 65%,
+      var(--accent-hi) 100%
+    );
+    background-size: 300% 100%;
+    background-position: 100% 0;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    animation: shimmer-sweep 9s ease-in-out infinite;
+  }
+  .persona h3 em {
+    color: var(--accent);
+  }
+  @keyframes shimmer-sweep {
+    0%, 100% { background-position: 100% 0; }
+    50% { background-position: -20% 0; }
+  }
+
+  /* Accent em underline flourish on hero */
+  .hero h1 em {
+    position: relative;
+    display: inline-block;
+  }
+  .hero h1 em::after {
+    content: '';
+    position: absolute;
+    left: 2%; right: 2%;
+    bottom: 0.06em;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    transform: scaleX(0);
+    transform-origin: left;
+    animation: underline-grow 1.4s var(--ease-out) 1.5s forwards;
+  }
+  @keyframes underline-grow { to { transform: scaleX(1); } }
+
+  /* ---------- Live Bloch state equation ---------- */
+  .bloch-equation {
+    margin-top: 32px;
+    padding: 22px 26px;
+    background: linear-gradient(180deg, var(--bg-card), #0a0c13);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    position: relative;
+    overflow: hidden;
+  }
+  .bloch-equation::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    opacity: 0.5;
+  }
+  .bloch-eq-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    margin-bottom: 12px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .bloch-eq-label::before {
+    content: ''; width: 5px; height: 5px; border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 8px var(--accent);
+    animation: pulse 2s ease-in-out infinite;
+  }
+  .bloch-eq-line {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text);
+    font-size: 15px;
+    letter-spacing: 0.01em;
+    font-variant-numeric: tabular-nums;
+    margin-bottom: 18px;
+    line-height: 1.5;
+    white-space: nowrap;
+    overflow-x: auto;
+  }
+  .bloch-eq-line::-webkit-scrollbar { height: 0; }
+  .bloch-eq-line .psi { color: var(--text-dim); }
+  .bloch-eq-line .coeff { color: var(--accent-hi); font-weight: 500; }
+  .bloch-eq-line .ket { color: var(--cyan); }
+  .bloch-probs {
+    display: flex; gap: 24px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .bloch-prob { flex: 1; }
+  .bloch-prob-label {
+    display: flex; justify-content: space-between;
+    font-size: 10.5px;
+    margin-bottom: 7px;
+    color: var(--text-dim);
+    letter-spacing: 0.05em;
+  }
+  .bloch-prob-label .val {
+    color: var(--text); font-variant-numeric: tabular-nums;
+  }
+  .bloch-prob-bar {
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .bloch-prob-fill {
+    height: 100%;
+    transition: width .3s var(--ease-out);
+    border-radius: 2px;
+  }
+  .bloch-prob-fill.zero {
+    background: linear-gradient(90deg, #4da0a5, var(--cyan));
+    box-shadow: 0 0 8px var(--cyan-glow);
+  }
+  .bloch-prob-fill.one {
+    background: linear-gradient(90deg, #a0693d, var(--accent));
+    box-shadow: 0 0 8px var(--accent-glow);
+  }
+
+  /* ---------- 3D card tilt ---------- */
+  .tilt {
+    transform-style: preserve-3d;
+    transition: transform .5s var(--ease-out), box-shadow .5s var(--ease);
+    will-change: transform;
+  }
+  .tilt > * { transform: translateZ(0); }
+  .tilt-raise { transform: translateZ(24px); }
+
+  /* ---------- Marquee hover pause ---------- */
+  .marquee:hover .marquee-track { animation-play-state: paused; }
+  .marquee-item { transition: color .3s var(--ease); }
+  .marquee:hover .marquee-item:hover { color: var(--accent); }
+
+  /* ---------- Hero parallax wrapper ---------- */
+  .hero-parallax {
+    will-change: transform;
+    transition: transform .6s var(--ease-out);
+  }
+
+  /* ---------- Refined focus rings ---------- */
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 4px;
+    border-radius: 4px;
+  }
+  button:focus-visible, a:focus-visible {
+    outline-offset: 6px;
+  }
+
+  /* ---------- Footer time ---------- */
+  .footer-time {
+    font-variant-numeric: tabular-nums;
+    color: var(--text-dim);
+  }
+  .footer-time .blink { animation: blink 1s step-end infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  /* ---------- Tiny visual refinements ---------- */
+  .bento-card, .persona, .testimonial {
+    transform-origin: center center;
+  }
+  /* Section divider dots */
+  .section-divider {
+    display: flex; justify-content: center; align-items: center;
+    gap: 8px; padding: 20px 0;
+  }
+  .section-divider span {
+    width: 4px; height: 4px; border-radius: 50%;
+    background: var(--border-hi);
+  }
+  .section-divider span:nth-child(2) { background: var(--accent); }
+
+  /* Timeline line fill based on scroll */
+  .timeline { --timeline-progress: 0%; }
+  .timeline::before {
+    background: linear-gradient(180deg,
+      transparent 0%,
+      var(--border-hi) 5%,
+      var(--border-hi) var(--timeline-progress),
+      var(--border) var(--timeline-progress),
+      var(--border) 95%,
+      transparent 100%
+    );
+  }
+
+  /* Better-looking em selection inside paragraphs */
+  em { font-style: italic; }
+
+  /* Reveal prefers-reduced handling */
+  @media (prefers-reduced-motion: reduce) {
+    .section-title em, .hero h1 em, .closer-quote span {
+      animation: none;
+      background-position: 50% 0;
+    }
+    .page-loader { display: none; }
+    .hero h1 em::after { animation: none; transform: scaleX(1); }
+  }
+</style>
+</head>
+<body>
+
+<!-- ========== PAGE LOADER ========== -->
+<div class="page-loader" id="pageLoader" aria-hidden="true">
+  <div class="page-loader-content">
+    <div class="page-loader-logo">
+      <svg width="36" height="36" viewBox="0 0 30 30" fill="none">
+        <defs>
+          <linearGradient id="loaderGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#d9a066"/>
+            <stop offset="100%" stop-color="#8d6441"/>
+          </linearGradient>
+        </defs>
+        <ellipse cx="15" cy="15" rx="13" ry="5.5" stroke="#eef0f3" stroke-opacity="0.4" stroke-width="0.8" transform="rotate(-25 15 15)"/>
+        <path d="M15 5 L25 22 L5 22 Z" fill="url(#loaderGrad)" opacity="0.95"/>
+        <circle cx="15" cy="15" r="1.6" fill="#eef0f3"/>
+      </svg>
+      <span>Katmai</span>
+    </div>
+    <div class="page-loader-bar"></div>
+    <div class="page-loader-label">Initializing quantum interface</div>
+  </div>
+</div>
+
+<canvas class="bg-canvas" id="bgCanvas"></canvas>
+<div class="bg-grid"></div>
+<div class="bg-gradient"></div>
+<div class="bg-grain"></div>
+<div class="bg-vignette"></div>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+<div class="scroll-progress" id="scrollProgress"></div>
+
+<nav>
+  <div class="nav-inner">
+    <a href="#" class="brand" aria-label="Katmai Computing" data-hover>
+      <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="peakGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#d9a066"/>
+            <stop offset="100%" stop-color="#8d6441"/>
+          </linearGradient>
+        </defs>
+        <ellipse cx="15" cy="15" rx="13" ry="5.5" stroke="#eef0f3" stroke-opacity="0.4" stroke-width="0.8" transform="rotate(-25 15 15)"/>
+        <path d="M15 5 L25 22 L5 22 Z" fill="url(#peakGrad)" opacity="0.95"/>
+        <path d="M15 5 L20 13 L15 15 L12 12 Z" fill="#eef0f3" opacity="0.18"/>
+        <circle cx="15" cy="15" r="1.6" fill="#eef0f3"/>
+      </svg>
+      <span>Katmai</span>
+    </a>
+    <div class="nav-menu">
+      <a href="#device" data-hover>Device</a>
+      <a href="#demo" data-hover>Demo</a>
+      <a href="#specs" data-hover>Specs</a>
+      <a href="#timeline" data-hover>Timeline</a>
+      <a href="#faq" data-hover>FAQ</a>
+    </div>
+    <a href="#waitlist" class="nav-cta" data-hover>
+      <span class="dot"></span>
+      Join Waitlist
+    </a>
+  </div>
+</nav>
+
+<main>
+
+  <section class="hero">
+    <div class="hero-badge">
+      <span class="tag">New</span>
+      <span>Revealing v1 · Fall 2026</span>
+    </div>
+
+    <h1>
+      <span class="word" style="animation-delay:.2s">Quantum</span>
+      <span class="word" style="animation-delay:.3s">computing</span><br>
+      <span class="word" style="animation-delay:.4s">you</span>
+      <span class="word" style="animation-delay:.5s">can</span>
+      <span class="word" style="animation-delay:.6s">hold</span>
+      <span class="word" style="animation-delay:.7s">in</span>
+      <em class="word" style="animation-delay:.8s">your&nbsp;hand.</em>
+    </h1>
+
+    <p class="hero-sub">
+      A pocket-scale quantum instrument for the next generation of researchers, students, and the curious. Incubated at the <a href="#" data-hover>Harvard Innovation Labs</a>.
+    </p>
+
+    <div class="hero-ctas">
+      <a href="#waitlist" class="btn btn-primary" data-hover>
+        <span>Join Waitlist</span>
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 7h12m0 0L8 2m5 5L8 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <a href="#device" class="btn btn-secondary" data-hover>
+        <span>Explore the Device</span>
+      </a>
+    </div>
+
+    <div class="hero-meta">
+      <span><strong class="num counter" data-target="8">0</strong> Qubits</span>
+      <span><strong class="num counter" data-target="400">0</strong> MHz NMR</span>
+      <span><strong class="num">&lt;2s</strong> Cold Start</span>
+      <span><strong class="num">∞</strong> Curiosity</span>
+    </div>
+
+    <div class="hero-scroll-indicator">
+      <span>Scroll</span>
+      <div class="line"></div>
+    </div>
+  </section>
+
+  <div class="device-wrap" id="device">
+    <div class="device-3d">
+      <div class="device-frame">
+        <div class="device-bezel">
+          <span>KATMAI · MODEL 01</span>
+          <div class="device-bezel-dots"><span></span><span></span><span></span></div>
+        </div>
+
+        <div class="device-screen">
+          <div class="screen-content">
+            <div class="screen-head">
+              <span>NMR · 1H · 400 MHz</span>
+              <span class="live-dot">LIVE</span>
+            </div>
+            <svg class="screen-waveform" viewBox="0 0 400 180" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="waveGrad" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0%" stop-color="#7fd1d6" stop-opacity="0"/>
+                  <stop offset="50%" stop-color="#d9a066"/>
+                  <stop offset="100%" stop-color="#7fd1d6" stop-opacity="0"/>
+                </linearGradient>
+                <linearGradient id="waveFill" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#d9a066" stop-opacity="0.15"/>
+                  <stop offset="100%" stop-color="#d9a066" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+              <g stroke="#ffffff" stroke-opacity="0.05">
+                <line x1="0" y1="45" x2="400" y2="45"/>
+                <line x1="0" y1="90" x2="400" y2="90"/>
+                <line x1="0" y1="135" x2="400" y2="135"/>
+                <line x1="100" y1="0" x2="100" y2="180"/>
+                <line x1="200" y1="0" x2="200" y2="180"/>
+                <line x1="300" y1="0" x2="300" y2="180"/>
+              </g>
+              <line x1="0" y1="90" x2="400" y2="90" stroke="#ffffff" stroke-opacity="0.15" stroke-dasharray="2 3"/>
+              <path id="waveformFill" fill="url(#waveFill)" stroke="none"/>
+              <path id="waveform" stroke="url(#waveGrad)" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+            </svg>
+            <div class="screen-readings">
+              <span>δ · <strong>7.26 ppm</strong></span>
+              <span>T₂ · <strong>1.84s</strong></span>
+              <span>SNR · <strong>142</strong></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="device-controls">
+          <div class="dial"></div>
+          <div class="dial"></div>
+          <div class="dial"></div>
+          <div class="dial"></div>
+        </div>
+      </div>
+
+      <div class="device-annotations">
+        <span class="annotation annotation-1">4.3" OLED</span>
+        <span class="annotation annotation-2">NMR Transceiver</span>
+        <span class="annotation annotation-3">Hot-Swap Port</span>
+        <span class="annotation annotation-4">Haptic Dials</span>
+      </div>
+    </div>
+  </div>
+
+  <section class="section">
+    <div class="section-head reveal">
+      <div class="section-eyebrow">The Device</div>
+      <h2 class="section-title">The world's most advanced <em>quantum textbook.</em></h2>
+    </div>
+
+    <div class="bento reveal-stagger">
+
+      <div class="bento-card bento-hero b-lg">
+        <span class="bento-num">/ 01</span>
+        <svg class="bento-hero-viz" viewBox="0 0 260 260" fill="none">
+          <defs>
+            <radialGradient id="orbGrad">
+              <stop offset="0%" stop-color="#d9a066" stop-opacity="0.6"/>
+              <stop offset="100%" stop-color="#d9a066" stop-opacity="0"/>
+            </radialGradient>
+          </defs>
+          <circle cx="130" cy="130" r="90" stroke="#d9a066" stroke-opacity="0.2" stroke-width="1"/>
+          <circle cx="130" cy="130" r="60" stroke="#d9a066" stroke-opacity="0.35" stroke-width="1"/>
+          <circle cx="130" cy="130" r="30" stroke="#d9a066" stroke-opacity="0.5" stroke-width="1"/>
+          <circle cx="130" cy="130" r="20" fill="url(#orbGrad)"/>
+          <circle cx="130" cy="130" r="3" fill="#eef0f3"/>
+          <circle cx="220" cy="130" r="2.5" fill="#d9a066"><animateTransform attributeName="transform" type="rotate" from="0 130 130" to="360 130 130" dur="12s" repeatCount="indefinite"/></circle>
+          <circle cx="190" cy="130" r="2" fill="#7fd1d6"><animateTransform attributeName="transform" type="rotate" from="0 130 130" to="-360 130 130" dur="8s" repeatCount="indefinite"/></circle>
+          <circle cx="160" cy="130" r="1.5" fill="#eef0f3"><animateTransform attributeName="transform" type="rotate" from="0 130 130" to="360 130 130" dur="5s" repeatCount="indefinite"/></circle>
+        </svg>
+        <div class="bento-icon">
+          <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.3">
+            <path d="M6 20 L15 10 L24 30 L34 20"/>
+            <circle cx="6" cy="20" r="2.5" fill="currentColor"/>
+            <circle cx="34" cy="20" r="2.5" fill="currentColor"/>
+          </svg>
+        </div>
+        <h3>Hot-Swap NMR Features</h3>
+        <p>Instantly switch functions with patent-pending rapid NMR technology. Reconfigure experiments in under two seconds — no recalibration.</p>
+      </div>
+
+      <div class="bento-card b-md">
+        <span class="bento-num">/ 02</span>
+        <div class="bento-icon">
+          <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.3">
+            <circle cx="20" cy="20" r="3" fill="currentColor"/>
+            <circle cx="20" cy="20" r="9"/>
+            <circle cx="20" cy="20" r="15"/>
+            <line x1="20" y1="5" x2="20" y2="10"/>
+            <line x1="20" y1="30" x2="20" y2="35"/>
+          </svg>
+        </div>
+        <h3>Lightning-Fast Processing</h3>
+        <p>An iconic transmitter with unmatched speed and precision.</p>
+      </div>
+
+      <div class="bento-card b-md">
+        <span class="bento-num">/ 03</span>
+        <div class="bento-icon">
+          <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.3">
+            <circle cx="12" cy="12" r="5"/>
+            <circle cx="28" cy="12" r="5"/>
+            <circle cx="12" cy="28" r="5"/>
+            <circle cx="28" cy="28" r="5"/>
+            <circle cx="12" cy="12" r="1.5" fill="currentColor"/>
+            <circle cx="28" cy="28" r="1.5" fill="currentColor"/>
+          </svg>
+        </div>
+        <h3>Dynamic Control with KatmaiOS</h3>
+        <p>Four haptic dials and a suite of advanced tools at your fingertips.</p>
+      </div>
+
+      <div class="bento-card b-sm">
+        <span class="bento-num">/ 04</span>
+        <div class="bento-icon">
+          <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.3">
+            <path d="M4 24 Q11 11, 20 24 T36 24"/>
+            <path d="M4 16 Q11 29, 20 16 T36 16" stroke-opacity="0.35"/>
+          </svg>
+        </div>
+        <h3>Clean Quantum Info</h3>
+        <p>Fast, simple, clear.</p>
+      </div>
+
+      <div class="bento-card b-sm">
+        <span class="bento-num">/ 05</span>
+        <div class="bento-icon">
+          <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.3">
+            <rect x="6" y="22" width="5" height="12"/>
+            <rect x="14" y="16" width="5" height="18"/>
+            <rect x="22" y="8" width="5" height="26"/>
+            <rect x="30" y="18" width="5" height="16"/>
+          </svg>
+        </div>
+        <h3>Spectroscopy Presets</h3>
+        <p>Pre-configured lesson modes.</p>
+      </div>
+
+      <div class="bento-card b-sm">
+        <span class="bento-num">/ 06</span>
+        <div class="bento-icon">
+          <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.3">
+            <rect x="9" y="6" width="22" height="28" rx="3"/>
+            <line x1="15" y1="13" x2="25" y2="13"/>
+            <line x1="15" y1="20" x2="25" y2="20"/>
+            <circle cx="20" cy="28" r="1.5" fill="currentColor"/>
+          </svg>
+        </div>
+        <h3>Portable Power</h3>
+        <p>Field-ready & rugged.</p>
+      </div>
+
+    </div>
+  </section>
+
+  <section class="section" id="demo">
+    <div class="demo-section">
+      <div class="demo-text reveal">
+        <div class="section-eyebrow">Try it · Live</div>
+        <h2 class="section-title">A qubit, <em>on your screen.</em></h2>
+        <p>
+          This is a Bloch sphere — the geometric picture of a single quantum bit. The arrow shows the qubit's current state. Click any basis below to prepare the qubit and watch it rotate.
+        </p>
+        <p style="color: var(--text-faint); font-size: 14px;">
+          On the Katmai device, you'd feel the dial click as the state collapses.
+        </p>
+        <div class="demo-states">
+          <button class="state-btn active" data-state="0" data-hover>|0⟩</button>
+          <button class="state-btn" data-state="1" data-hover>|1⟩</button>
+          <button class="state-btn" data-state="+" data-hover>|+⟩</button>
+          <button class="state-btn" data-state="-" data-hover>|−⟩</button>
+          <button class="state-btn" data-state="i" data-hover>|i⟩</button>
+          <button class="state-btn" data-state="random" data-hover>Randomize</button>
+        </div>
+
+        <div class="bloch-equation">
+          <div class="bloch-eq-label">Live Quantum State</div>
+          <div class="bloch-eq-line" id="eqLine">
+            <span class="psi">|ψ⟩ =</span> <span class="coeff" id="eqAlpha">1.000</span><span class="ket">|0⟩</span> <span class="psi">+</span> <span class="coeff" id="eqBeta">0.000</span><span class="ket">|1⟩</span>
+          </div>
+          <div class="bloch-probs">
+            <div class="bloch-prob">
+              <div class="bloch-prob-label">
+                <span>P(|0⟩) — measure as 0</span>
+                <span class="val" id="prob0Val">100.0%</span>
+              </div>
+              <div class="bloch-prob-bar"><div class="bloch-prob-fill zero" id="prob0Fill" style="width: 100%"></div></div>
+            </div>
+            <div class="bloch-prob">
+              <div class="bloch-prob-label">
+                <span>P(|1⟩) — measure as 1</span>
+                <span class="val" id="prob1Val">0.0%</span>
+              </div>
+              <div class="bloch-prob-bar"><div class="bloch-prob-fill one" id="prob1Fill" style="width: 0%"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bloch-wrap reveal">
+        <svg class="bloch-svg" viewBox="-110 -110 220 220" id="blochSvg">
+          <defs>
+            <radialGradient id="sphereGrad" cx="0.3" cy="0.3">
+              <stop offset="0%" stop-color="#1a1e2a"/>
+              <stop offset="60%" stop-color="#0c0e14"/>
+              <stop offset="100%" stop-color="#05060a"/>
+            </radialGradient>
+            <linearGradient id="arrowGrad" x1="0" y1="1" x2="0" y2="0">
+              <stop offset="0%" stop-color="#d9a066" stop-opacity="0.3"/>
+              <stop offset="100%" stop-color="#e8b478"/>
+            </linearGradient>
+          </defs>
+          <circle cx="0" cy="0" r="90" fill="url(#sphereGrad)" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
+          <ellipse cx="0" cy="0" rx="90" ry="22" fill="none" stroke="rgba(127,209,214,0.25)" stroke-width="1" stroke-dasharray="2 3"/>
+          <ellipse cx="0" cy="0" rx="22" ry="90" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1" stroke-dasharray="2 3"/>
+          <line x1="-95" y1="0" x2="95" y2="0" stroke="rgba(255,255,255,0.15)" stroke-width="0.5"/>
+          <line x1="0" y1="-95" x2="0" y2="95" stroke="rgba(255,255,255,0.15)" stroke-width="0.5"/>
+          <circle cx="0" cy="-90" r="3" fill="#7fd1d6"/>
+          <circle cx="0" cy="90" r="3" fill="#d9a066"/>
+          <g id="stateVector">
+            <line x1="0" y1="0" x2="0" y2="-90" stroke="url(#arrowGrad)" stroke-width="2" stroke-linecap="round" id="stateLine" style="transition: all 1s cubic-bezier(.16,1,.3,1);"/>
+            <circle cx="0" cy="-90" r="5" fill="#e8b478" id="stateTip" style="transition: all 1s cubic-bezier(.16,1,.3,1);">
+              <animate attributeName="r" values="5;7;5" dur="2s" repeatCount="indefinite"/>
+            </circle>
+            <circle cx="0" cy="-90" r="10" fill="#d9a066" opacity="0.3" id="stateGlow" style="transition: all 1s cubic-bezier(.16,1,.3,1);">
+              <animate attributeName="r" values="8;14;8" dur="2s" repeatCount="indefinite"/>
+              <animate attributeName="opacity" values="0.4;0;0.4" dur="2s" repeatCount="indefinite"/>
+            </circle>
+          </g>
+          <circle cx="0" cy="0" r="1.5" fill="#eef0f3"/>
+        </svg>
+        <span class="bloch-label label-0">|0⟩</span>
+        <span class="bloch-label label-1">|1⟩</span>
+        <span class="bloch-label label-x">+x</span>
+        <span class="bloch-label label-y">+y</span>
+        <div class="bloch-hint">Drag to rotate</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="specs">
+    <div class="section-head center reveal">
+      <div class="section-eyebrow" style="justify-content: center;">Under the Hood</div>
+      <h2 class="section-title">Engineered with <em>ruthless precision.</em></h2>
+    </div>
+
+    <div class="specs-terminal reveal">
+      <div class="terminal-head">
+        <div class="dots"><span></span><span></span><span></span></div>
+        <span class="title">~/katmai/device.spec — v1.0.0</span>
+      </div>
+      <div class="terminal-body"><span class="prompt">katmai$</span> <span class="cmd">probe --report</span>
+<span class="comment"># Device inventory, 2026-Q3 production spec</span>
+
+<span class="key">model</span>         <span class="val">"Katmai 01"</span>
+<span class="key">cpu</span>           <span class="val">ARM Cortex-A78 @ 2.4 GHz</span>
+<span class="key">nmr</span>           <span class="val">400 MHz, 1H / 13C / 31P</span>
+<span class="key">display</span>       <span class="val">4.3" OLED, 800×480, 120Hz</span>
+<span class="key">qubits</span>        <span class="val">8 (demonstration, simulated)</span>
+<span class="key">sample_size</span>   <span class="val">2–5 mm capillary</span>
+<span class="key">weight</span>        <span class="val">612 g</span>
+<span class="key">battery</span>       <span class="val">6 hr continuous acquisition</span>
+<span class="key">os</span>            <span class="val">KatmaiOS · Linux 6.8 LTS</span>
+<span class="key">connectivity</span>  <span class="val">USB-C, Wi-Fi 6E, BLE 5.3</span>
+
+<span class="prompt">katmai$</span> <span class="cmd">_</span></div>
+    </div>
+
+    <div class="specs-grid reveal-stagger">
+      <div class="spec-cell">
+        <span class="spec-label">Resolution</span>
+        <span class="spec-value"><span class="counter" data-target="0.05" data-decimals="2">0</span><span class="unit">ppm</span></span>
+      </div>
+      <div class="spec-cell">
+        <span class="spec-label">Signal-to-Noise</span>
+        <span class="spec-value"><span class="counter" data-target="142">0</span><span class="unit">:1</span></span>
+      </div>
+      <div class="spec-cell">
+        <span class="spec-label">Scan Time</span>
+        <span class="spec-value"><span class="counter" data-target="1.8" data-decimals="1">0</span><span class="unit">s</span></span>
+      </div>
+      <div class="spec-cell">
+        <span class="spec-label">Ambient Range</span>
+        <span class="spec-value">-10°<span class="unit">to 45°C</span></span>
+      </div>
+    </div>
+  </section>
+
+  <section class="credentials reveal">
+    <div class="credentials-label">Built with &amp; backed by</div>
+    <div class="credentials-list">
+      <div class="credential">Harvard Innovation Labs<small>Incubated · 2025</small></div>
+      <div class="credential">MIT Physics<small>Research Partner</small></div>
+      <div class="credential">Stanford Quantum<small>Collaborator</small></div>
+      <div class="credential">Caltech IQIM<small>Advisory</small></div>
+    </div>
+  </section>
+
+  <!-- ========== MARQUEE / PRESS ========== -->
+  <div class="marquee" aria-label="Press mentions">
+    <div class="marquee-track">
+      <span class="marquee-item">"A lab in your pocket."</span>
+      <span class="marquee-item">Nature · Technology Preview</span>
+      <span class="marquee-item">"Audacious & well-engineered."</span>
+      <span class="marquee-item">IEEE Spectrum</span>
+      <span class="marquee-item">"Rewriting the quantum classroom."</span>
+      <span class="marquee-item">Scientific American</span>
+      <span class="marquee-item">TechCrunch Disrupt · Finalist 2025</span>
+      <span class="marquee-item">"Democratizing quantum."</span>
+      <span class="marquee-item">MIT Tech Review 35 Under 35</span>
+      <!-- duplicate for seamless loop -->
+      <span class="marquee-item">"A lab in your pocket."</span>
+      <span class="marquee-item">Nature · Technology Preview</span>
+      <span class="marquee-item">"Audacious & well-engineered."</span>
+      <span class="marquee-item">IEEE Spectrum</span>
+      <span class="marquee-item">"Rewriting the quantum classroom."</span>
+      <span class="marquee-item">Scientific American</span>
+      <span class="marquee-item">TechCrunch Disrupt · Finalist 2025</span>
+      <span class="marquee-item">"Democratizing quantum."</span>
+      <span class="marquee-item">MIT Tech Review 35 Under 35</span>
+    </div>
+  </div>
+
+  <!-- ========== PERSONAS · WHO IT'S FOR ========== -->
+  <section class="section" id="for">
+    <div class="section-head reveal">
+      <div class="section-eyebrow">Who It's For</div>
+      <h2 class="section-title">Built for the ones <em>asking why.</em></h2>
+    </div>
+
+    <div class="personas reveal-stagger">
+      <div class="persona" data-hover>
+        <svg class="persona-corner" viewBox="0 0 120 120" fill="none" stroke="currentColor" stroke-width="1">
+          <circle cx="60" cy="60" r="50"/>
+          <circle cx="60" cy="60" r="35"/>
+          <circle cx="60" cy="60" r="20"/>
+        </svg>
+        <span class="persona-num">01 / Students</span>
+        <svg class="persona-icon" viewBox="0 0 56 56" fill="none" stroke="currentColor" stroke-width="1.3">
+          <path d="M28 10 L48 20 L28 30 L8 20 Z"/>
+          <path d="M14 24 V36 C14 40, 21 44, 28 44 C35 44, 42 40, 42 36 V24"/>
+          <line x1="48" y1="20" x2="48" y2="38"/>
+          <circle cx="48" cy="40" r="2" fill="currentColor"/>
+        </svg>
+        <h3>For the <em>curious student</em></h3>
+        <p>Move past the textbook. Take real measurements on the first day of class. See a superposition collapse in front of you.</p>
+        <div class="persona-tags">
+          <span class="persona-tag">Intro Physics</span>
+          <span class="persona-tag">Lab Courses</span>
+          <span class="persona-tag">AP Chemistry</span>
+        </div>
+      </div>
+
+      <div class="persona" data-hover>
+        <svg class="persona-corner" viewBox="0 0 120 120" fill="none" stroke="currentColor" stroke-width="1">
+          <path d="M20 100 Q60 20 100 100"/>
+          <path d="M30 100 Q60 40 90 100"/>
+          <path d="M40 100 Q60 60 80 100"/>
+        </svg>
+        <span class="persona-num">02 / Researchers</span>
+        <svg class="persona-icon" viewBox="0 0 56 56" fill="none" stroke="currentColor" stroke-width="1.3">
+          <circle cx="28" cy="28" r="18"/>
+          <circle cx="28" cy="28" r="4" fill="currentColor"/>
+          <line x1="28" y1="6" x2="28" y2="12"/>
+          <line x1="28" y1="44" x2="28" y2="50"/>
+          <line x1="6" y1="28" x2="12" y2="28"/>
+          <line x1="44" y1="28" x2="50" y2="28"/>
+          <line x1="13" y1="13" x2="17" y2="17"/>
+          <line x1="39" y1="39" x2="43" y2="43"/>
+          <line x1="13" y1="43" x2="17" y2="39"/>
+          <line x1="39" y1="17" x2="43" y2="13"/>
+        </svg>
+        <h3>For the <em>hands-on researcher</em></h3>
+        <p>Bring the instrument with you. Field samples, remote collaborations, and rapid iteration without booking the core facility three weeks out.</p>
+        <div class="persona-tags">
+          <span class="persona-tag">NMR Spectroscopy</span>
+          <span class="persona-tag">QIS</span>
+          <span class="persona-tag">Field Research</span>
+        </div>
+      </div>
+
+      <div class="persona" data-hover>
+        <svg class="persona-corner" viewBox="0 0 120 120" fill="none" stroke="currentColor" stroke-width="1">
+          <rect x="20" y="30" width="80" height="60" rx="4"/>
+          <line x1="20" y1="50" x2="100" y2="50"/>
+          <line x1="40" y1="30" x2="40" y2="90"/>
+        </svg>
+        <span class="persona-num">03 / Educators</span>
+        <svg class="persona-icon" viewBox="0 0 56 56" fill="none" stroke="currentColor" stroke-width="1.3">
+          <path d="M8 16 L28 8 L48 16 L28 24 Z"/>
+          <path d="M16 20 V34 Q16 42, 28 42 Q40 42, 40 34 V20"/>
+          <line x1="48" y1="16" x2="48" y2="34"/>
+          <circle cx="48" cy="36" r="2" fill="currentColor"/>
+        </svg>
+        <h3>For the <em>inspiring teacher</em></h3>
+        <p>Turn the most abstract ideas into something they can hold. A classroom set that ships with 30 lessons and a curriculum portal.</p>
+        <div class="persona-tags">
+          <span class="persona-tag">Curriculum</span>
+          <span class="persona-tag">Classroom Set</span>
+          <span class="persona-tag">Teacher Portal</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== COMPARISON ========== -->
+  <section class="section">
+    <div class="section-head center reveal">
+      <div class="section-eyebrow" style="justify-content: center;">Why Katmai</div>
+      <h2 class="section-title">The lab you couldn't <em>have before.</em></h2>
+    </div>
+
+    <div class="compare reveal">
+      <div class="compare-label"></div>
+      <div class="compare-header">Benchtop NMR</div>
+      <div class="compare-header highlight">Katmai 01</div>
+      <div class="compare-header">Mainframe Quantum</div>
+
+      <div class="compare-label">Weight</div>
+      <div class="compare-cell dim">45 kg</div>
+      <div class="compare-cell highlight">0.6 kg</div>
+      <div class="compare-cell dim">2 tons</div>
+
+      <div class="compare-label">Price</div>
+      <div class="compare-cell dim">$80k+</div>
+      <div class="compare-cell highlight">Education pricing</div>
+      <div class="compare-cell dim">$10M+</div>
+
+      <div class="compare-label">Setup Time</div>
+      <div class="compare-cell dim">2 days</div>
+      <div class="compare-cell highlight">&lt; 2 seconds</div>
+      <div class="compare-cell dim">Weeks</div>
+
+
+      <div class="compare-label">Works In The Field</div>
+      <div class="compare-cell no">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </div>
+      <div class="compare-cell highlight">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <div class="compare-cell no">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </div>
+
+      <div class="compare-label">For Students</div>
+      <div class="compare-cell no">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </div>
+      <div class="compare-cell highlight">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <div class="compare-cell dim">Cloud only</div>
+
+      <div class="compare-label">Cold-Start Required</div>
+      <div class="compare-cell dim">Yes, 30 min</div>
+      <div class="compare-cell highlight">None</div>
+      <div class="compare-cell dim">Days</div>
+    </div>
+  </section>
+
+  <!-- ========== TESTIMONIALS ========== -->
+  <section class="section">
+    <div class="section-head center reveal">
+      <div class="section-eyebrow" style="justify-content: center;">In Their Own Words</div>
+      <h2 class="section-title">Scientists who've <em>held one.</em></h2>
+    </div>
+
+    <div class="testimonials reveal-stagger">
+      <div class="testimonial" data-hover>
+        <div class="testimonial-mark">"</div>
+        <p class="testimonial-quote">The first time I handed a Katmai to a sophomore and they saw a real spectrum come up on the screen in class — that's the moment quantum mechanics stopped being abstract for them.</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">EM</div>
+          <div>
+            <div class="testimonial-name">Dr. Elena Martinez</div>
+            <div class="testimonial-role">Physics · Brown University</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="testimonial" data-hover>
+        <div class="testimonial-mark">"</div>
+        <p class="testimonial-quote">I've been running NMR for thirty years. What these folks have built would not have been possible a decade ago. It's a genuinely new class of instrument — not a smaller version of something old.</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">KT</div>
+          <div>
+            <div class="testimonial-name">Prof. Kenji Tanaka</div>
+            <div class="testimonial-role">Chemistry · UC Berkeley</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="testimonial" data-hover>
+        <div class="testimonial-mark">"</div>
+        <p class="testimonial-quote">We took two units on a field campaign in Iceland last summer. No cold chain, no trailer, no two-day setup. We got data the same afternoon. This is the future of portable spectroscopy.</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">AO</div>
+          <div>
+            <div class="testimonial-name">Dr. Amara Okonkwo</div>
+            <div class="testimonial-role">Geochemistry · ETH Zürich</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="timeline">
+    <div class="section-head center reveal">
+      <div class="section-eyebrow" style="justify-content: center;">The Roadmap</div>
+      <h2 class="section-title">From Cambridge <em>to your desk.</em></h2>
+    </div>
+
+    <div class="timeline reveal-stagger">
+      <div class="timeline-item done">
+        <div class="timeline-content">
+          <div class="timeline-date">Q1 · 2025</div>
+          <h4>Founding & Incubation</h4>
+          <p>Katmai is born out of a Harvard quantum lab and joins the Harvard Innovation Labs cohort.</p>
+        </div>
+      </div>
+      <div class="timeline-item done">
+        <div class="timeline-content">
+          <div class="timeline-date">Q4 · 2025</div>
+          <h4>First Prototype</h4>
+          <p>Proof-of-concept benchtop NMR, the size of a shoebox. First spectra acquired.</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-content">
+          <div class="timeline-date">Q2 · 2026</div>
+          <h4>Engineering Validation</h4>
+          <p>Shrink to handheld form factor. KatmaiOS alpha with hot-swap module support.</p>
+        </div>
+      </div>
+      <div class="timeline-item future">
+        <div class="timeline-content">
+          <div class="timeline-date">Q4 · 2026</div>
+          <h4>Beta Program</h4>
+          <p>First units ship to select research labs and universities. Waitlist priority honored.</p>
+        </div>
+      </div>
+      <div class="timeline-item future">
+        <div class="timeline-content">
+          <div class="timeline-date">Q2 · 2027</div>
+          <h4>General Availability</h4>
+          <p>Katmai 01 available worldwide. Curriculum partnerships with 50+ institutions.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== FAQ ========== -->
+  <section class="section" id="faq">
+    <div class="section-head center reveal">
+      <div class="section-eyebrow" style="justify-content: center;">Questions, Answered</div>
+      <h2 class="section-title">Everything you're <em>wondering about.</em></h2>
+    </div>
+
+    <div class="faq reveal-stagger">
+      <div class="faq-item">
+        <button class="faq-q" data-hover>
+          <span>Is this a real quantum computer or a simulator?</span>
+          <span class="faq-icon" aria-hidden="true"></span>
+        </button>
+        <div class="faq-a"><div class="faq-a-inner">
+          Katmai 01 is a portable <strong>nuclear magnetic resonance</strong> (NMR) instrument that performs real quantum measurements on physical samples. The 8-qubit demonstration mode uses high-fidelity simulation for teaching and visualization — real NMR spin dynamics run natively on the hardware.
+        </div></div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q" data-hover>
+          <span>How much does it cost?</span>
+          <span class="faq-icon" aria-hidden="true"></span>
+        </button>
+        <div class="faq-a"><div class="faq-a-inner">
+          We're finalizing pricing tiers for beta shipment in Q4 2026. Our mission is education-first, so you can expect substantial discounts for accredited institutions and classroom sets. Individual researcher units will be a fraction of any benchtop NMR.
+        </div></div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q" data-hover>
+          <span>What samples can I run?</span>
+          <span class="faq-icon" aria-hidden="true"></span>
+        </button>
+        <div class="faq-a"><div class="faq-a-inner">
+          Anything that fits in a 2–5 mm capillary: solvents, small-molecule liquids, dissolved compounds, aqueous samples. We support <sup>1</sup>H, <sup>13</sup>C, and <sup>31</sup>P nuclei out of the box. Hot-swap modules will expand the list after GA.
+        </div></div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q" data-hover>
+          <span>Do I need to be near liquid helium or a cleanroom?</span>
+          <span class="faq-icon" aria-hidden="true"></span>
+        </button>
+        <div class="faq-a"><div class="faq-a-inner">
+          No. Katmai runs at room temperature with no cryogens and no shielding room. It works on a classroom desk, in a field case, or on your kitchen table. Ambient operating range is -10° to 45°C.
+        </div></div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q" data-hover>
+          <span>Can I bring it on a plane?</span>
+          <span class="faq-icon" aria-hidden="true"></span>
+        </button>
+        <div class="faq-a"><div class="faq-a-inner">
+          Yes. Katmai 01 is designed to be carry-on-friendly — under the 100 Wh battery limit, no pressurized vessels, no controlled substances. It ships in a travel case the size of a DSLR kit.
+        </div></div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q" data-hover>
+          <span>How do I get one?</span>
+          <span class="faq-icon" aria-hidden="true"></span>
+        </button>
+        <div class="faq-a"><div class="faq-a-inner">
+          Join the waitlist below. Beta units ship to research labs and universities in Q4 2026 in priority order. General availability follows in Q2 2027.
+        </div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="closer" id="waitlist">
+    <div class="section-eyebrow" style="justify-content: center; display: inline-flex;">Get Early Access</div>
+    <p class="closer-quote reveal">
+      The future of quantum isn't in a datacenter. <span>It's in your backpack.</span>
+    </p>
+
+    <form class="newsletter reveal" onsubmit="event.preventDefault(); this.querySelector('button').textContent='Joined ✓';">
+      <input type="email" placeholder="you@university.edu" required />
+      <button type="submit" data-hover>Join Waitlist</button>
+    </form>
+
+    <p style="margin-top: 20px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-faint); letter-spacing: 0.1em; text-transform: uppercase;">
+      2,184 researchers on the list · No spam, ever
+    </p>
+  </section>
+</main>
+
+<!-- ========== SCROLL TO TOP ========== -->
+<button class="to-top" id="toTop" aria-label="Scroll to top" data-hover>
+  <svg class="ring" viewBox="0 0 48 48">
+    <circle class="ring-track" cx="24" cy="24" r="22"/>
+    <circle class="ring-fill" cx="24" cy="24" r="22" id="ringFill" stroke-dasharray="138.2" stroke-dashoffset="138.2"/>
+  </svg>
+  <svg class="to-top-arrow" width="14" height="14" viewBox="0 0 14 14" fill="none">
+    <path d="M7 13 V2 M2 7 L7 2 L12 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+</button>
+
+<footer>
+  <div class="footer-top">
+    <div class="footer-brand">
+      <div class="footer-logo">
+        <svg width="26" height="26" viewBox="0 0 30 30" fill="none">
+          <ellipse cx="15" cy="15" rx="13" ry="5.5" stroke="#eef0f3" stroke-opacity="0.4" stroke-width="0.8" transform="rotate(-25 15 15)"/>
+          <path d="M15 5 L25 22 L5 22 Z" fill="url(#peakGrad)"/>
+          <circle cx="15" cy="15" r="1.6" fill="#eef0f3"/>
+        </svg>
+        <span>Katmai</span>
+      </div>
+      <p>Pocket-scale quantum computing for the next generation of scientists. Building in Palo Alto, CA.</p>
+    </div>
+    <div class="footer-col">
+      <h5>Product</h5>
+      <ul>
+        <li><a href="#device" data-hover>Device</a></li>
+        <li><a href="#demo" data-hover>Live Demo</a></li>
+        <li><a href="#specs" data-hover>Specifications</a></li>
+        <li><a href="#" data-hover>KatmaiOS</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>Company</h5>
+      <ul>
+        <li><a href="#timeline" data-hover>Roadmap</a></li>
+        <li><a href="#" data-hover>Research</a></li>
+        <li><a href="#" data-hover>Careers</a></li>
+        <li><a href="#" data-hover>Press Kit</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>Connect</h5>
+      <ul>
+        <li><a href="mailto:hello@example.com" data-hover>Email</a></li>
+        <li><a href="#" data-hover>LinkedIn</a></li>
+        <li><a href="#" data-hover>Apparel Shop</a></li>
+        <li><a href="#waitlist" data-hover>Waitlist</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <div class="loc"><span class="loc-dot"></span> Building in Palo Alto, CA</div>
+    <div class="footer-time"><span id="footerTime">--:--:--</span><span class="blink"> PT</span></div>
+    <div>© Katmai Computing — MMXXVI</div>
+    <div>v1.0.0 · sha-4a2f9</div>
+  </div>
+</footer>
+
+<script>
+(() => {
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Cursor
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursorRing');
+  let mx = window.innerWidth/2, my = window.innerHeight/2;
+  let rx = mx, ry = my;
+
+  window.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    cursor.style.transform = `translate(${mx}px, ${my}px) translate(-50%, -50%)`;
+  });
+
+  function animateRing() {
+    rx += (mx - rx) * 0.18;
+    ry += (my - ry) * 0.18;
+    ring.style.transform = `translate(${rx}px, ${ry}px) translate(-50%, -50%)`;
+    requestAnimationFrame(animateRing);
+  }
+  if (!prefersReduced) animateRing();
+
+  document.querySelectorAll('[data-hover]').forEach(el => {
+    el.addEventListener('mouseenter', () => {
+      cursor.classList.add('hover');
+      ring.classList.add('hover');
+    });
+    el.addEventListener('mouseleave', () => {
+      cursor.classList.remove('hover');
+      ring.classList.remove('hover');
+    });
+  });
+
+  // Scroll progress
+  const progress = document.getElementById('scrollProgress');
+  window.addEventListener('scroll', () => {
+    const h = document.documentElement;
+    const pct = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
+    progress.style.width = pct + '%';
+  }, { passive: true });
+
+  // Intersection Observer reveals
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('in-view');
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+
+  document.querySelectorAll('.reveal, .reveal-stagger, .device-wrap').forEach(el => io.observe(el));
+
+  // Particle field
+  const canvas = document.getElementById('bgCanvas');
+  const ctx = canvas.getContext('2d');
+  let W, H, DPR;
+  const particles = [];
+  const COUNT = 90;
+  const LINK_DIST = 150;
+
+  function resize() {
+    DPR = Math.min(window.devicePixelRatio || 1, 2);
+    W = window.innerWidth;
+    H = window.innerHeight;
+    canvas.width = W * DPR;
+    canvas.height = H * DPR;
+    canvas.style.width = W + 'px';
+    canvas.style.height = H + 'px';
+    ctx.setTransform(1,0,0,1,0,0);
+    ctx.scale(DPR, DPR);
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  for (let i = 0; i < COUNT; i++) {
+    particles.push({
+      x: Math.random() * W,
+      y: Math.random() * H,
+      vx: (Math.random() - 0.5) * 0.2,
+      vy: (Math.random() - 0.5) * 0.2,
+      r: Math.random() * 1.2 + 0.4,
+      a: Math.random() * 0.5 + 0.15,
+    });
+  }
+
+  function tick() {
+    ctx.clearRect(0, 0, W, H);
+    for (const p of particles) {
+      const dx = mx - p.x, dy = my - p.y;
+      const dist = Math.hypot(dx, dy);
+      if (dist < 240) {
+        p.vx += (dx / dist) * 0.0025;
+        p.vy += (dy / dist) * 0.0025;
+      }
+      p.x += p.vx; p.y += p.vy;
+      p.vx *= 0.994; p.vy *= 0.994;
+
+      if (p.x < -20) p.x = W + 20;
+      if (p.x > W + 20) p.x = -20;
+      if (p.y < -20) p.y = H + 20;
+      if (p.y > H + 20) p.y = -20;
+
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+      ctx.fillStyle = `rgba(238, 240, 243, ${p.a})`;
+      ctx.fill();
+    }
+
+    for (let i = 0; i < particles.length; i++) {
+      for (let j = i+1; j < particles.length; j++) {
+        const a = particles[i], b = particles[j];
+        const dx = a.x - b.x, dy = a.y - b.y;
+        const d = Math.hypot(dx, dy);
+        if (d < LINK_DIST) {
+          const alpha = (1 - d / LINK_DIST) * 0.16;
+          ctx.strokeStyle = `rgba(217, 160, 102, ${alpha})`;
+          ctx.lineWidth = 0.6;
+          ctx.beginPath();
+          ctx.moveTo(a.x, a.y);
+          ctx.lineTo(b.x, b.y);
+          ctx.stroke();
+        }
+      }
+    }
+    requestAnimationFrame(tick);
+  }
+  if (!prefersReduced) tick();
+  else {
+    for (const p of particles) {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+      ctx.fillStyle = `rgba(238, 240, 243, ${p.a})`;
+      ctx.fill();
+    }
+  }
+
+  // NMR waveform
+  const waveform = document.getElementById('waveform');
+  const waveformFill = document.getElementById('waveformFill');
+  if (waveform) {
+    const peaks = [
+      { x: 80,  h: 55, w: 6 },
+      { x: 130, h: 40, w: 5 },
+      { x: 210, h: 70, w: 4 },
+      { x: 218, h: 50, w: 5 },
+      { x: 280, h: 32, w: 7 },
+      { x: 330, h: 45, w: 5 },
+    ];
+    const t0 = performance.now();
+    function drawWave() {
+      const t = (performance.now() - t0) / 1000;
+      const line = [];
+      for (let x = 0; x <= 400; x += 2) {
+        let y = 90;
+        y += Math.sin((x + t*40) * 0.08) * 0.5;
+        y += Math.cos((x * 0.2) + t*1.2) * 0.3;
+        for (const p of peaks) {
+          const dx = x - p.x;
+          const gauss = Math.exp(-(dx*dx) / (2 * p.w * p.w));
+          const pulse = 0.9 + 0.1 * Math.sin(t * 2 + p.x * 0.03);
+          y -= p.h * gauss * pulse;
+        }
+        line.push(`${x === 0 ? 'M' : 'L'}${x} ${y.toFixed(2)}`);
+      }
+      waveform.setAttribute('d', line.join(' '));
+      waveformFill.setAttribute('d', line.join(' ') + ' L400 180 L0 180 Z');
+      if (!prefersReduced) requestAnimationFrame(drawWave);
+    }
+    drawWave();
+  }
+
+  // Bloch sphere
+  const stateBtns = document.querySelectorAll('.state-btn');
+  const stateLine = document.getElementById('stateLine');
+  const stateTip = document.getElementById('stateTip');
+  const stateGlow = document.getElementById('stateGlow');
+
+  const states = {
+    '0': { theta: 0,   phi: 0 },
+    '1': { theta: 180, phi: 0 },
+    '+': { theta: 90,  phi: 0 },
+    '-': { theta: 90,  phi: 180 },
+    'i': { theta: 90,  phi: 90 },
+  };
+
+  function setState(name) {
+    let st;
+    if (name === 'random') {
+      st = { theta: Math.random() * 180, phi: Math.random() * 360 };
+    } else {
+      st = states[name];
+    }
+    const r = 90;
+    const th = st.theta * Math.PI / 180;
+    const ph = st.phi * Math.PI / 180;
+    // Project: x horizontal, y vertical, and squash for perspective (equator ry=22/r=90)
+    const x = r * Math.sin(th) * Math.cos(ph);
+    const y = -r * Math.cos(th);
+    // Simulate depth - when phi is 90 or 270, vector points "into" or "out of" screen
+    // We squash x by how much the vector is pointing along y-axis (depth)
+    const depthFactor = Math.abs(Math.cos(ph));
+    const squashedX = x * (0.35 + 0.65 * depthFactor);
+    // Also nudge y slightly for ellipse illusion
+    const yNudge = r * Math.sin(th) * Math.sin(ph) * 0.15;
+    const yFinal = y + yNudge;
+
+    stateLine.setAttribute('x2', squashedX.toFixed(2));
+    stateLine.setAttribute('y2', yFinal.toFixed(2));
+    stateTip.setAttribute('cx', squashedX.toFixed(2));
+    stateTip.setAttribute('cy', yFinal.toFixed(2));
+    stateGlow.setAttribute('cx', squashedX.toFixed(2));
+    stateGlow.setAttribute('cy', yFinal.toFixed(2));
+
+    updateEquation(st.theta, st.phi);
+  }
+
+  // ---------- Live quantum state equation ----------
+  const eqAlpha = document.getElementById('eqAlpha');
+  const eqBeta = document.getElementById('eqBeta');
+  const prob0Val = document.getElementById('prob0Val');
+  const prob1Val = document.getElementById('prob1Val');
+  const prob0Fill = document.getElementById('prob0Fill');
+  const prob1Fill = document.getElementById('prob1Fill');
+
+  function updateEquation(thetaDeg, phiDeg) {
+    // |ψ⟩ = cos(θ/2)|0⟩ + e^(iφ) sin(θ/2)|1⟩
+    const halfTheta = (thetaDeg * Math.PI / 180) / 2;
+    const alpha = Math.cos(halfTheta);
+    const sinHalf = Math.sin(halfTheta);
+    const phi = phiDeg * Math.PI / 180;
+    const betaRe = sinHalf * Math.cos(phi);
+    const betaIm = sinHalf * Math.sin(phi);
+
+    const fmt = n => (n < 0 ? '−' : '') + Math.abs(n).toFixed(3);
+
+    if (eqAlpha) eqAlpha.textContent = fmt(alpha);
+
+    if (eqBeta) {
+      let betaStr;
+      if (Math.abs(betaIm) < 0.005) {
+        betaStr = fmt(betaRe);
+      } else if (Math.abs(betaRe) < 0.005) {
+        betaStr = `${fmt(betaIm)}i`;
+      } else {
+        const sign = betaIm >= 0 ? '+' : '−';
+        betaStr = `(${fmt(betaRe)} ${sign} ${Math.abs(betaIm).toFixed(3)}i)`;
+      }
+      eqBeta.textContent = betaStr;
+    }
+
+    const p0 = alpha * alpha;
+    const p1 = betaRe * betaRe + betaIm * betaIm;
+    if (prob0Val) prob0Val.textContent = (p0 * 100).toFixed(1) + '%';
+    if (prob1Val) prob1Val.textContent = (p1 * 100).toFixed(1) + '%';
+    if (prob0Fill) prob0Fill.style.width = (p0 * 100) + '%';
+    if (prob1Fill) prob1Fill.style.width = (p1 * 100) + '%';
+  }
+
+  stateBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      stateBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      setState(btn.dataset.state);
+    });
+  });
+
+  // ---------- Draggable Bloch sphere ----------
+  const blochSvg = document.getElementById('blochSvg');
+  const blochWrap = document.querySelector('.bloch-wrap');
+  let dragging = false;
+  let curTheta = 0, curPhi = 0;
+
+  function applyBloch(theta, phi) {
+    curTheta = theta; curPhi = phi;
+    const r = 90;
+    const th = theta * Math.PI / 180;
+    const ph = phi * Math.PI / 180;
+    const x = r * Math.sin(th) * Math.cos(ph);
+    const y = -r * Math.cos(th);
+    const depthFactor = Math.abs(Math.cos(ph));
+    const squashedX = x * (0.35 + 0.65 * depthFactor);
+    const yNudge = r * Math.sin(th) * Math.sin(ph) * 0.15;
+    const yFinal = y + yNudge;
+    // Remove transitions for instant drag response
+    stateLine.style.transition = 'none';
+    stateTip.style.transition = 'none';
+    stateGlow.style.transition = 'none';
+    stateLine.setAttribute('x2', squashedX.toFixed(2));
+    stateLine.setAttribute('y2', yFinal.toFixed(2));
+    stateTip.setAttribute('cx', squashedX.toFixed(2));
+    stateTip.setAttribute('cy', yFinal.toFixed(2));
+    stateGlow.setAttribute('cx', squashedX.toFixed(2));
+    stateGlow.setAttribute('cy', yFinal.toFixed(2));
+
+    updateEquation(theta, phi);
+  }
+
+  function getSvgPoint(evt) {
+    const rect = blochSvg.getBoundingClientRect();
+    const clientX = evt.touches ? evt.touches[0].clientX : evt.clientX;
+    const clientY = evt.touches ? evt.touches[0].clientY : evt.clientY;
+    // viewBox is -110 -110 220 220, so center is (0,0), radius ~90
+    const x = ((clientX - rect.left) / rect.width) * 220 - 110;
+    const y = ((clientY - rect.top) / rect.height) * 220 - 110;
+    return { x, y };
+  }
+
+  function updateFromPoint(pt) {
+    // Clamp to sphere radius
+    const dist = Math.hypot(pt.x, pt.y);
+    const r = 90;
+    const clampedX = dist > r ? (pt.x / dist) * r : pt.x;
+    const clampedY = dist > r ? (pt.y / dist) * r : pt.y;
+    // From screen (x, y) → theta, phi
+    // y = -r * cos(theta) → cos(theta) = -y/r → theta in [0, pi]
+    const cosTheta = -clampedY / r;
+    const theta = Math.acos(Math.max(-1, Math.min(1, cosTheta)));
+    const sinTheta = Math.sin(theta);
+    let phi = 0;
+    if (sinTheta > 0.01) {
+      // x = r * sin(theta) * cos(phi) → cos(phi) = x / (r * sin(theta))
+      const cosPhi = clampedX / (r * sinTheta);
+      phi = Math.acos(Math.max(-1, Math.min(1, cosPhi)));
+      // Sign of phi cannot be determined from 2D; use x sign
+      if (clampedX < 0) phi = Math.PI * 2 - phi;
+    }
+    applyBloch(theta * 180 / Math.PI, phi * 180 / Math.PI);
+  }
+
+  function startDrag(e) {
+    dragging = true;
+    blochWrap.classList.add('dragging');
+    stateBtns.forEach(b => b.classList.remove('active'));
+    updateFromPoint(getSvgPoint(e));
+    e.preventDefault();
+  }
+  function moveDrag(e) {
+    if (!dragging) return;
+    updateFromPoint(getSvgPoint(e));
+    e.preventDefault();
+  }
+  function endDrag() {
+    dragging = false;
+    blochWrap.classList.remove('dragging');
+    // Restore transitions for button-click animations
+    setTimeout(() => {
+      stateLine.style.transition = '';
+      stateTip.style.transition = '';
+      stateGlow.style.transition = '';
+    }, 50);
+  }
+
+  if (blochSvg) {
+    blochSvg.addEventListener('mousedown', startDrag);
+    window.addEventListener('mousemove', moveDrag);
+    window.addEventListener('mouseup', endDrag);
+    blochSvg.addEventListener('touchstart', startDrag, { passive: false });
+    window.addEventListener('touchmove', moveDrag, { passive: false });
+    window.addEventListener('touchend', endDrag);
+  }
+
+  // ---------- Animated counters ----------
+  function animateCounter(el) {
+    const target = parseFloat(el.dataset.target);
+    const decimals = parseInt(el.dataset.decimals || '0', 10);
+    const duration = 1800;
+    const start = performance.now();
+    const startVal = 0;
+    function step(now) {
+      const progress = Math.min((now - start) / duration, 1);
+      // easeOutExpo
+      const eased = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+      const val = startVal + (target - startVal) * eased;
+      el.textContent = val.toFixed(decimals);
+      if (progress < 1) requestAnimationFrame(step);
+      else el.textContent = target.toFixed(decimals);
+    }
+    requestAnimationFrame(step);
+  }
+
+  const counterIO = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        animateCounter(e.target);
+        counterIO.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.5 });
+  document.querySelectorAll('.counter').forEach(el => counterIO.observe(el));
+
+  // ---------- FAQ accordion ----------
+  document.querySelectorAll('.faq-item').forEach(item => {
+    const q = item.querySelector('.faq-q');
+    q.addEventListener('click', () => {
+      const isOpen = item.classList.contains('open');
+      // Close all
+      document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+      if (!isOpen) item.classList.add('open');
+    });
+  });
+
+  // ---------- Active nav highlighting ----------
+  const navLinks = document.querySelectorAll('.nav-menu a');
+  const sectionIds = ['device', 'demo', 'specs', 'timeline', 'faq'];
+  const sectionEls = sectionIds.map(id => document.getElementById(id)).filter(Boolean);
+
+  function updateActiveNav() {
+    const scrollPos = window.scrollY + window.innerHeight * 0.35;
+    let current = null;
+    for (const sec of sectionEls) {
+      if (sec.offsetTop <= scrollPos) current = sec.id;
+    }
+    navLinks.forEach(link => {
+      const href = link.getAttribute('href').replace('#', '');
+      link.classList.toggle('active', href === current);
+    });
+  }
+  window.addEventListener('scroll', updateActiveNav, { passive: true });
+
+  // ---------- Scroll-to-top button ----------
+  const toTop = document.getElementById('toTop');
+  const ringFill = document.getElementById('ringFill');
+  const ringCircumference = 2 * Math.PI * 22;
+  window.addEventListener('scroll', () => {
+    const h = document.documentElement;
+    const pct = h.scrollTop / (h.scrollHeight - h.clientHeight);
+    if (h.scrollTop > 600) toTop.classList.add('visible');
+    else toTop.classList.remove('visible');
+    ringFill.style.strokeDashoffset = ringCircumference * (1 - pct);
+  }, { passive: true });
+  toTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+  // ---------- Text scramble on section titles ----------
+  const CHARS = '!@#$%^&*<>[]{}/\\|=+-_~';
+  function scrambleText(el) {
+    const original = el.textContent;
+    // Don't scramble <em> differently — just scramble the full text
+    const len = original.length;
+    const durationPerChar = 28;
+    const revealAt = 0.55;
+    let frame = 0;
+    const totalFrames = Math.ceil(len * durationPerChar / 16);
+
+    function step() {
+      let out = '';
+      for (let i = 0; i < len; i++) {
+        const charProgress = frame / totalFrames - (i / len) * revealAt;
+        if (original[i] === ' ') out += ' ';
+        else if (charProgress > 0.4) out += original[i];
+        else if (charProgress > 0) out += CHARS[Math.floor(Math.random() * CHARS.length)];
+        else out += ' ';
+      }
+      el.textContent = out;
+      frame++;
+      if (frame < totalFrames + 5) requestAnimationFrame(step);
+      else el.textContent = original;
+    }
+    step();
+  }
+
+  // Only scramble the plain-text title (no <em>), so we target h2.section-title without em
+  // Actually scramble is fun but risky with em. Let's skip scramble for em-containing titles
+  // and only do subtle effect on eyebrows.
+  const scrambleTargets = document.querySelectorAll('.section-eyebrow');
+  const scrambleIO = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        // Only scramble text node content (skip the ::before which is a pseudo)
+        // We'll scramble only the actual text content
+        const el = e.target;
+        // Use simpler reveal: cycle chars briefly
+        const text = el.textContent.trim();
+        if (text && text.length > 0 && text.length < 40) {
+          const len = text.length;
+          let frame = 0;
+          const totalFrames = 22;
+          function tick() {
+            let out = '';
+            for (let i = 0; i < len; i++) {
+              const done = frame >= (i * 1.2 + 6);
+              if (text[i] === ' ') out += ' ';
+              else if (done) out += text[i];
+              else out += CHARS[Math.floor(Math.random() * CHARS.length)];
+            }
+            el.textContent = out;
+            frame++;
+            if (frame < totalFrames + len) requestAnimationFrame(tick);
+            else el.textContent = text;
+          }
+          tick();
+        }
+        scrambleIO.unobserve(el);
+      }
+    });
+  }, { threshold: 0.8 });
+  if (!prefersReduced) scrambleTargets.forEach(el => scrambleIO.observe(el));
+
+  // ---------- Magnetic buttons (existing) ----------
+  if (!prefersReduced) {
+    document.querySelectorAll('.btn').forEach(btn => {
+      btn.addEventListener('mousemove', e => {
+        const r = btn.getBoundingClientRect();
+        const x = e.clientX - r.left - r.width / 2;
+        const y = e.clientY - r.top - r.height / 2;
+        btn.style.transform = `translate(${x * 0.15}px, ${y * 0.25}px)`;
+      });
+      btn.addEventListener('mouseleave', () => {
+        btn.style.transform = '';
+      });
+    });
+  }
+
+  // Device parallax on scroll
+  const device = document.querySelector('.device-3d');
+  if (device && !prefersReduced) {
+    window.addEventListener('scroll', () => {
+      const rect = device.getBoundingClientRect();
+      const center = rect.top + rect.height / 2;
+      const viewCenter = window.innerHeight / 2;
+      const offset = (center - viewCenter) / window.innerHeight;
+      const rotX = 10 - offset * 8;
+      const rotY = -8 + offset * 4;
+      device.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg)`;
+    }, { passive: true });
+  }
+
+  // ---------- Page loader fadeout ----------
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      const loader = document.getElementById('pageLoader');
+      if (loader) loader.classList.add('done');
+    }, 1100);
+  });
+  // Safety: fade out even if load takes too long
+  setTimeout(() => {
+    const loader = document.getElementById('pageLoader');
+    if (loader) loader.classList.add('done');
+  }, 2500);
+
+  // ---------- 3D card tilt ----------
+  if (!prefersReduced) {
+    const tiltTargets = document.querySelectorAll('.bento-card, .persona, .testimonial');
+    tiltTargets.forEach(card => {
+      card.classList.add('tilt');
+      let raf = null;
+      card.addEventListener('mousemove', e => {
+        const r = card.getBoundingClientRect();
+        const x = (e.clientX - r.left) / r.width - 0.5;
+        const y = (e.clientY - r.top) / r.height - 0.5;
+        if (raf) cancelAnimationFrame(raf);
+        raf = requestAnimationFrame(() => {
+          card.style.transform = `perspective(1200px) rotateY(${x * 5}deg) rotateX(${-y * 5}deg) translateY(-3px)`;
+        });
+      });
+      card.addEventListener('mouseleave', () => {
+        if (raf) cancelAnimationFrame(raf);
+        card.style.transform = '';
+      });
+    });
+  }
+
+  // ---------- Footer live time (Pacific) ----------
+  const footerTime = document.getElementById('footerTime');
+  function tickTime() {
+    if (!footerTime) return;
+    const now = new Date();
+    // Pacific Time formatter
+    const parts = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'America/Los_Angeles',
+      hour12: false,
+      hour: '2-digit', minute: '2-digit', second: '2-digit'
+    }).formatToParts(now);
+    const h = parts.find(p => p.type === 'hour').value;
+    const m = parts.find(p => p.type === 'minute').value;
+    const s = parts.find(p => p.type === 'second').value;
+    footerTime.textContent = `${h}:${m}:${s}`;
+  }
+  tickTime();
+  setInterval(tickTime, 1000);
+
+  // ---------- Timeline progress line ----------
+  const timeline = document.querySelector('.timeline');
+  if (timeline) {
+    window.addEventListener('scroll', () => {
+      const rect = timeline.getBoundingClientRect();
+      const viewH = window.innerHeight;
+      // progress 0 when top of timeline reaches 70% of viewport, 1 when bottom reaches 30%
+      const start = viewH * 0.7;
+      const end = viewH * 0.3;
+      const rawProgress = (start - rect.top) / (rect.height + (start - end));
+      const progress = Math.max(0, Math.min(1, rawProgress));
+      timeline.style.setProperty('--timeline-progress', (progress * 100) + '%');
+    }, { passive: true });
+  }
+
+  // ---------- Hero subtle parallax on mousemove ----------
+  const heroBadge = document.querySelector('.hero-badge');
+  const heroSub = document.querySelector('.hero-sub');
+  const heroCtas = document.querySelector('.hero-ctas');
+  if (!prefersReduced && heroBadge) {
+    let heroRaf = null;
+    window.addEventListener('mousemove', e => {
+      const px = (e.clientX / window.innerWidth - 0.5);
+      const py = (e.clientY / window.innerHeight - 0.5);
+      if (heroRaf) cancelAnimationFrame(heroRaf);
+      heroRaf = requestAnimationFrame(() => {
+        heroBadge.style.transform = `translate(${px * 10}px, ${py * 6}px)`;
+        if (heroSub) heroSub.style.transform = `translate(${px * 6}px, ${py * 4}px)`;
+        if (heroCtas) heroCtas.style.transform = `translate(${px * 4}px, ${py * 2}px)`;
+      });
+    }, { passive: true });
+  }
+
+  // ---------- Keyboard accessibility for Bloch ----------
+  // Arrow keys: change theta/phi when sphere is focused
+  if (blochSvg) {
+    blochSvg.setAttribute('tabindex', '0');
+    blochSvg.setAttribute('role', 'application');
+    blochSvg.setAttribute('aria-label', 'Interactive Bloch sphere. Drag or use arrow keys to rotate the state vector.');
+    blochSvg.addEventListener('keydown', e => {
+      const step = 8;
+      let changed = false;
+      if (e.key === 'ArrowLeft') { curPhi = (curPhi - step + 360) % 360; changed = true; }
+      else if (e.key === 'ArrowRight') { curPhi = (curPhi + step) % 360; changed = true; }
+      else if (e.key === 'ArrowUp') { curTheta = Math.max(0, curTheta - step); changed = true; }
+      else if (e.key === 'ArrowDown') { curTheta = Math.min(180, curTheta + step); changed = true; }
+      if (changed) {
+        stateBtns.forEach(b => b.classList.remove('active'));
+        applyBloch(curTheta, curPhi);
+        e.preventDefault();
+      }
+    });
+  }
+
+  // ---------- Initialize equation on load ----------
+  updateEquation(0, 0);
+
+})();
+</script>
+
+</body>
+</html>
