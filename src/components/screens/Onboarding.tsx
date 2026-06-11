@@ -320,6 +320,7 @@ function TourSheet({ onClose, onComplete }: { onClose: () => void; onComplete: (
 export function Onboarding({ isActive, profile, onNavigate }: Props) {
   const { items, complete } = useChecklist();
   const [sheet, setSheet] = useState<SheetId>(null);
+  const [showWelcome, setShowWelcome] = useState(true);
 
   const openSheet = (id: SheetId) => setSheet(id);
   const closeSheet = () => setSheet(null);
@@ -381,6 +382,44 @@ export function Onboarding({ isActive, profile, onNavigate }: Props) {
             </div>
           </div>
         ))}
+
+        {showWelcome && (
+          <div className="sheet-backdrop open" style={{ zIndex: 120 }}>
+            <div className="sheet" style={{ maxWidth: 480 }}>
+              <div className="sheet-head">
+                <div className="si">
+                  <KatmaiLogo size={18} />
+                </div>
+                <div>
+                  <div className="sn">Welcome to CatMayOS</div>
+                  <div className="sd">You're verified and ready to go</div>
+                </div>
+              </div>
+              <div className="sheet-body">
+                <h2 style={{ marginBottom: 6 }}>Hi{profile.name ? `, ${profile.name.split(' ')[0]}` : ''}! 👋</h2>
+                <p style={{ marginBottom: 20, color: 'var(--dim)' }}>Your account is confirmed. Here's what to do next to get your first NMR measurement.</p>
+                <div className="checklist" style={{ marginBottom: 0 }}>
+                  {[
+                    { label: 'Complete your profile', desc: 'Add your institution and class code.' },
+                    { label: 'Read the safety primer', desc: '2-minute read before touching the hardware.' },
+                    { label: 'Learn how NMR works', desc: 'Larmor precession and the free-induction decay.' },
+                    { label: 'Book the spectrometer', desc: 'Reserve a slot and run your first pulse sequence.' },
+                  ].map((s, i) => (
+                    <div key={i} className="ci-row">
+                      <span className="ci-check" style={{ background: 'var(--accent)', color: '#000', fontWeight: 700, fontSize: 11 }}>{i + 1}</span>
+                      <div><div className="cn">{s.label}</div><div className="cd">{s.desc}</div></div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="sheet-foot">
+                <button className="btn btn-primary btn-block" onClick={() => setShowWelcome(false)}>
+                  Let's go <span className="arr">→</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </section>
   );
